@@ -1,36 +1,165 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Stylish Style Collection Collection PWA
+
+A full-stack Progressive Web App for premium clothing and accessories e-commerce.
+
+## Features
+
+- 🛍️ Product browsing and management
+- 📏 AI-powered body measurement capture
+- 💬 Multi-platform contact (WhatsApp, Snapchat, Instagram)
+- 👤 User authentication and profiles
+- 🎨 Admin dashboard for store management
+- 🌓 Dark/Light theme support
+- 📱 Fully responsive PWA
+- ⚡ Optimized performance
+- 🔒 Secure authentication
+
+## Tech Stack
+
+- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, MongoDB, Mongoose
+- **Authentication**: NextAuth.js
+- **UI Components**: shadcn/ui, Radix UI
+- **PWA**: Service Workers, Manifest
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ and npm
+- MongoDB database (local or Atlas)
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd stylish-style-pwa
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit `.env.local` with your configuration:
+- MongoDB connection string
+- NextAuth secret (generate with: `openssl rand -base64 32`)
+- Contact information
 
-## Learn More
+4. Seed the database (optional):
+```bash
+npm run seed
+```
 
-To learn more about Next.js, take a look at the following resources:
+5. Run development server:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+### Vercel Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push code to GitHub
+2. Import project in Vercel
+3. Add environment variables in Vercel dashboard
+4. Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Environment Variables
+
+Set these in your deployment platform:
+```
+MONGODB_URI=your_mongodb_connection_string
+NEXTAUTH_SECRET=your_generated_secret
+NEXTAUTH_URL=https://yourdomain.com
+NEXT_PUBLIC_WHATSAPP_NUMBER=+233XXXXXXXXX
+NEXT_PUBLIC_SNAPCHAT_USERNAME=your_username
+NEXT_PUBLIC_INSTAGRAM_USERNAME=your_username
+```
+
+## Project Structure
+```
+stylish-style-pwa/
+├── src/
+│   ├── app/                 # Next.js 14 app directory
+│   │   ├── (auth)/         # Auth pages
+│   │   ├── (main)/         # Main app pages
+│   │   ├── admin/          # Admin dashboard
+│   │   └── api/            # API routes
+│   ├── components/         # React components
+│   │   ├── ui/            # shadcn/ui components
+│   │   ├── admin/         # Admin components
+│   │   ├── products/      # Product components
+│   │   └── shared/        # Shared components
+│   ├── lib/               # Utility functions
+│   ├── models/            # Mongoose models
+│   └── types/             # TypeScript types
+├── public/                # Static assets
+│   ├── icons/            # PWA icons
+│   ├── manifest.json     # PWA manifest
+│   └── sw.js            # Service worker
+└── scripts/              # Utility scripts
+```
+
+## Features by Session
+
+### Session 1: Authentication
+- User registration and login
+- Session management with NextAuth
+- Protected routes
+
+### Session 2: Products
+- Product listing with filters
+- Product details
+- Category browsing
+- Search functionality
+
+### Session 3: Admin Dashboard
+- Product management (CRUD)
+- Order management
+- User management
+- Analytics
+
+### Session 4: Measurements
+- Camera capture
+- Manual entry
+- Measurement history
+
+### Session 5: Contact & Profile
+- Multi-platform contact
+- Profile management
+- Order history
+
+### Session 6: PWA & Polish
+- PWA configuration
+- Offline support
+- Loading states
+- Error handling
+
+## Admin Access
+
+Create an admin user by:
+1. Register a new account
+2. Update the user's role in MongoDB:
+```javascript
+db.users.updateOne(
+  { email: "admin@example.com" },
+  { $set: { role: "admin" } }
+)
+```
+
+## License
+
+MIT
+
+## Support
+
+For support, email support@stylishstyle.com
