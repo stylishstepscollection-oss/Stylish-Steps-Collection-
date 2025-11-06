@@ -27,7 +27,7 @@ export default async function RegisterPage() {
               <Image
                 src={Logo}
                 alt="Stylish Style Collection"
-                fill
+                width={80} height={80}
                 className="object-contain p-4"
                 priority
               />          </div>

@@ -26,7 +26,7 @@ export default async function LoginPage() {
 <Image
                 src={Logo}
                 alt="Stylish Style Collection"
-                fill
+                width={80} height={80}
                 className="object-contain p-4"
                 priority
               />            </div>
