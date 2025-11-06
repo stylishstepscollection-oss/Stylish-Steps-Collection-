@@ -6,7 +6,7 @@ import Order from '@/models/Order';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,6 +17,9 @@ export async function PUT(
 
     await connectDB();
 
+    // Await params
+    const { id } = await params;
+
     const body = await request.json();
     const { status } = body;
 
@@ -25,7 +28,7 @@ export async function PUT(
     }
 
     const order = await Order.findByIdAndUpdate(
-      params.id,
+      id,
       { status },
       { new: true }
     )
@@ -51,7 +54,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -62,7 +65,10 @@ export async function DELETE(
 
     await connectDB();
 
-    const order = await Order.findByIdAndDelete(params.id);
+    // Await params
+    const { id } = await params;
+
+    const order = await Order.findByIdAndDelete(id);
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
