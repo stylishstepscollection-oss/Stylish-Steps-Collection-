@@ -7,7 +7,7 @@ import Image from 'next/image';
 import Logo from '@/public/SSC.png';
 
 export const metadata: Metadata = {
-  title: 'Register | Stylish Style Collection',
+  title: 'Register | Stylish Steps Collection',
   description: 'Create your account',
 };
 
@@ -26,12 +26,12 @@ export default async function RegisterPage() {
 
               <Image
                 src={Logo}
-                alt="Stylish Style Collection"
+                alt="Stylish Steps Collection"
                 width={80} height={80}
                 className="object-contain p-4"
                 priority
               />          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Stylish Style Collection</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Stylish Steps Collection</h1>
           <p className="text-white/80">Step into Style ✨</p>
         </div>
         <RegisterForm />

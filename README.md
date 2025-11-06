@@ -1,4 +1,4 @@
-# Stylish Style Collection Collection PWA
+# Stylish Steps Collection Collection PWA
 
 A full-stack Progressive Web App for premium clothing and accessories e-commerce.
 

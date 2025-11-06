@@ -48,7 +48,7 @@ export default function Navbar() {
             <Image src={logo} alt="logo" width={150} height={150} className=''/>
           </div>
           <span className="hidden font-bold sm:inline-block text-accent-gold">
-            Stylish Style Collection
+            Stylish Steps Collection
           </span>
         </Link>
 

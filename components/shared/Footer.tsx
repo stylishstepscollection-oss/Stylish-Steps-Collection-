@@ -109,13 +109,13 @@ export default function Footer() {
               <div className="relative w-12 h-12 bg-accent-gold rounded-xl overflow-hidden">
                 <Image
                   src={Logo}
-                  alt="Stylish Style Collection"
+                  alt="Stylish Steps Collection"
                   fill
                   className="object-contain p-2"
                 />
               </div>
               <div>
-                <h3 className="font-bold text-lg">Stylish Style</h3>
+                <h3 className="font-bold text-lg">Stylish Steps</h3>
                 <p className="text-xs text-muted-foreground">Step into Style</p>
               </div>
             </Link>
@@ -255,7 +255,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground text-center md:text-left">
-            © {new Date().getFullYear()} Stylish Style Collection. All rights reserved.
+            © {new Date().getFullYear()} Stylish Steps Collection. All rights reserved.
           </p>
 
           {/* Payment Methods */}

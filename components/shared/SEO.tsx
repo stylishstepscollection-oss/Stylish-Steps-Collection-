@@ -14,7 +14,7 @@ export function generateSEO({
   url,
 }: SEOProps): Metadata {
   return {
-    title: `${title} | Stylish Style Collection Collection`,
+    title: `${title} | Stylish Steps Collection Collection`,
     description,
     openGraph: {
       title,

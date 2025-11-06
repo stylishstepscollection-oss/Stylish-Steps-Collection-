@@ -66,7 +66,7 @@ export default function RegisterForm() {
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
         <CardDescription className="text-center">
-          Join Stylish Style Collection Collection
+          Join Stylish Steps Collection Collection
         </CardDescription>
       </CardHeader>
       <CardContent>

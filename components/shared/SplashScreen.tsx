@@ -58,7 +58,7 @@ export default function SplashScreen() {
             <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 mb-6">
               <Image
                 src={Logo}
-                alt="Stylish Style Collection"
+                alt="Stylish Steps Collection"
                 fill
                 className="object-contain"
                 priority
@@ -73,7 +73,7 @@ export default function SplashScreen() {
               className="text-center"
             >
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-light text-gray-900 dark:text-white tracking-wide mb-1">
-                Stylish Style
+                Stylish Steps
               </h1>
               <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 tracking-widest uppercase">
                 Collection

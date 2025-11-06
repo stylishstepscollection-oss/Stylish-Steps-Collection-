@@ -31,7 +31,7 @@ return (
 </div>
 <div>
 <h2 className="font-bold">Admin Panel</h2>
-<p className="text-xs text-muted-foreground">Stylish Style Collection</p>
+<p className="text-xs text-muted-foreground">Stylish Steps Collection</p>
 </div>
 </Link>
     <nav className="space-y-2">

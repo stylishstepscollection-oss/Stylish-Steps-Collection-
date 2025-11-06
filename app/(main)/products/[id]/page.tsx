@@ -25,7 +25,7 @@ export async function generateMetadata({
     }
 
     return {
-      title: `${product.name} | Stylish Style Collection`,
+      title: `${product.name} | Stylish Steps Collection`,
       description: product.description,
     };
   } catch (error) {

@@ -12,26 +12,26 @@ const inter = Inter({ subsets: ['latin'] });
 
 
 export const metadata: Metadata = {
-  title: 'Stylish Style Collection Collection',
+  title: 'Stylish Steps Collection Collection',
   description: 'Step into Style - Premium clothing and accessories',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Stylish Style Collection',
+    title: 'Stylish Steps Collection',
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
     type: 'website',
-    siteName: 'Stylish Style Collection Collection',
-    title: 'Stylish Style Collection Collection',
+    siteName: 'Stylish Steps Collection Collection',
+    title: 'Stylish Steps Collection Collection',
     description: 'Step into Style - Premium clothing and accessories',
   },
   twitter: {
     card: 'summary',
-    title: 'Stylish Style Collection Collection',
+    title: 'Stylish Steps Collection Collection',
     description: 'Step into Style - Premium clothing and accessories',
   },
 };

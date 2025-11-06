@@ -64,7 +64,7 @@ export default function PWAInstallPrompt() {
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h3 className="font-semibold mb-1">Install Stylish Style Collection</h3>
+              <h3 className="font-semibold mb-1">Install Stylish Steps Collection</h3>
               <p className="text-sm text-muted-foreground mb-3">
                 Install our app for quick access and offline features
               </p>
