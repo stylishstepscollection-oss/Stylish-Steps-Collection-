@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import connectDB from '@/lib/mongodb';
 import Product from '@/models/Product';
-import ProductForm from '@/components/admin/ProductForm';
+import ProductForm from '@/components/admin/productForm';
 
 interface EditProductPageProps {
   params: {
