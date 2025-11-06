@@ -10,21 +10,17 @@ export default function SplashScreen() {
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
-    // Check if this is a fresh app start (not just a refresh)
     const isAppStart = !sessionStorage.getItem('appStarted');
     
     if (isAppStart) {
-      // Mark app as started for this session
       sessionStorage.setItem('appStarted', 'true');
       setShouldRender(true);
       setIsVisible(true);
 
-      // Fade out after 2 seconds
       const fadeOutTimer = setTimeout(() => {
         setIsVisible(false);
       }, 2000);
 
-      // Remove from DOM after animation completes
       const removeTimer = setTimeout(() => {
         setShouldRender(false);
       }, 2500);
@@ -44,96 +40,63 @@ export default function SplashScreen() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.1 }}
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-primary"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4, ease: 'easeInOut' }}
+          className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-white dark:bg-gray-950"
         >
-          {/* Logo Container */}
+          {/* Logo Container - Simplified and Professional */}
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ 
-              scale: [0.8, 1.1, 1],
-              opacity: 1,
-            }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{
-              duration: 0.6,
-              times: [0, 0.6, 1],
-              ease: 'easeOut',
+              duration: 0.5,
+              ease: [0.25, 0.1, 0.25, 1],
             }}
-            className="relative"
+            className="relative flex flex-col items-center"
           >
-            {/* Pulsing background effect */}
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.6, 0.3],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-              className="absolute inset-0 bg-accent-gold/20 rounded-full blur-3xl"
-            />
-
-            {/* Logo */}
-            <motion.div
-              animate={{
-                rotate: [0, 5, -5, 0],
-              }}
-              transition={{
-                duration: 1.5,
-                ease: 'easeInOut',
-              }}
-              className="relative w-32 h-32 md:w-40 md:h-40 bg-white rounded-3xl shadow-2xl overflow-hidden"
-            >
+            {/* Logo - Clean presentation */}
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 mb-6">
               <Image
                 src={Logo}
                 alt="Stylish Style Collection"
                 fill
-                className="object-contain p-4"
+                className="object-contain"
                 priority
               />
+            </div>
+
+            {/* Brand Name - Elegant Typography */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="text-center"
+            >
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-light text-gray-900 dark:text-white tracking-wide mb-1">
+                Stylish Style
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 tracking-widest uppercase">
+                Collection
+              </p>
             </motion.div>
           </motion.div>
 
-          {/* Brand Name (subtle, fades in late) */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.4 }}
-            className="absolute bottom-20 text-center"
-          >
-            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-wider">
-              Stylish Style
-            </h1>
-          </motion.div>
-
-          {/* Loading indicator */}
+          {/* Minimal Loading Indicator */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="absolute bottom-10"
+            transition={{ delay: 0.4 }}
+            className="absolute bottom-12 sm:bottom-16"
           >
-            <div className="flex gap-1.5">
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [0.5, 1, 0.5],
-                  }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    delay: i * 0.2,
-                    ease: 'easeInOut',
-                  }}
-                  className="w-2 h-2 bg-white rounded-full"
-                />
-              ))}
-            </div>
+            <motion.div
+              animate={{ opacity: [0.3, 1, 0.3] }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              className="w-16 h-0.5 bg-linear-to-r from-transparent via-gray-400 dark:via-gray-600 to-transparent"
+            />
           </motion.div>
         </motion.div>
       )}

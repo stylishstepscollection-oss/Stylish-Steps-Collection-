@@ -60,55 +60,65 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Profile Information</CardTitle>
+    <Card className="overflow-hidden">
+      <CardHeader className="pb-3 sm:pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <CardTitle className="text-lg sm:text-xl">Profile Information</CardTitle>
           {!isEditing && (
             <Button
               size="sm"
               variant="outline"
               onClick={() => setIsEditing(true)}
+              className="w-full sm:w-auto"
             >
               <Edit className="mr-2 h-4 w-4" />
-              Edit
+              Edit Profile
             </Button>
           )}
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-col items-center mb-6">
-          <Avatar className="w-24 h-24 border-black border-2 mb-4">
-            <AvatarFallback className="bg-linear-to-br dark:text-white from-pink-500 via-blue-700 to-green-600 text-black text-2xl">
+      <CardContent className="px-4 sm:px-6">
+        <div className="flex flex-col items-center mb-4 sm:mb-6">
+          <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-primary mb-3 sm:mb-4">
+            <AvatarFallback className="bg-linear-to-br from-pink-500 via-purple-500 to-indigo-500 text-white text-xl sm:text-2xl font-bold">
               {getInitials(user.name)}
             </AvatarFallback>
           </Avatar>
+          {!isEditing && (
+            <h2 className="text-xl sm:text-2xl font-bold text-center">{user.name}</h2>
+          )}
         </div>
 
         {isEditing ? (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name" className="text-sm sm:text-base">Full Name</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" value={user.email} disabled />
-              <p className="text-xs text-muted-foreground">
+              <Label htmlFor="email" className="text-sm sm:text-base">Email</Label>
+              <Input 
+                id="email" 
+                value={user.email} 
+                disabled 
+                className="text-sm sm:text-base break-all"
+              />
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Email cannot be changed
               </p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
               <Button
                 type="submit"
-                className="bg-zinc-500 hover:bg-zinc-500/90"
+                className="w-full sm:flex-1 bg-zinc-500 hover:bg-zinc-500/90"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -126,6 +136,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
               <Button
                 type="button"
                 variant="outline"
+                className="w-full sm:flex-1"
                 onClick={() => {
                   setIsEditing(false);
                   setFormData({ name: user.name });
@@ -139,13 +150,13 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
           </form>
         ) : (
           <div className="space-y-4">
-            <div>
-              <Label className="text-muted-foreground">Full Name</Label>
-              <p className="font-medium">{user.name}</p>
+            <div className="space-y-1">
+              <Label className="text-xs sm:text-sm text-muted-foreground">Full Name</Label>
+              <p className="font-medium text-sm sm:text-base">{user.name}</p>
             </div>
-            <div>
-              <Label className="text-muted-foreground">Email</Label>
-              <p className="font-medium wrap-break-word">{user.email}</p>
+            <div className="space-y-1">
+              <Label className="text-xs sm:text-sm text-muted-foreground">Email</Label>
+              <p className="font-medium text-sm sm:text-base break-all">{user.email}</p>
             </div>
           </div>
         )}
