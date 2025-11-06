@@ -7,7 +7,7 @@ import Measurement from '@/models/Measurement';
 // GET /api/measurements/[id] - Get specific measurement
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,8 +18,11 @@ export async function GET(
 
     await connectDB();
 
+    // Await params
+    const { id } = await params;
+
     const measurement = await Measurement.findOne({
-      _id: params.id,
+      _id: id,
       user: session.user.id,
     }).lean();
 
@@ -40,7 +43,7 @@ export async function GET(
 // DELETE /api/measurements/[id] - Delete measurement
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -51,8 +54,11 @@ export async function DELETE(
 
     await connectDB();
 
+    // Await params
+    const { id } = await params;
+
     const measurement = await Measurement.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       user: session.user.id,
     });
 

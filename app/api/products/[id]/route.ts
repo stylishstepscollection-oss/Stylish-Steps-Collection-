@@ -7,12 +7,15 @@ import { authOptions } from '@/lib/auth';
 // GET /api/products/[id] - Get single product
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
 
-    const product = await Product.findById(params.id).lean();
+    // Await params
+    const { id } = await params;
+
+    const product = await Product.findById(id).lean();
 
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
@@ -31,7 +34,7 @@ export async function GET(
 // PUT /api/products/[id] - Update product (Admin only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -42,6 +45,9 @@ export async function PUT(
 
     await connectDB();
 
+    // Await params
+    const { id } = await params;
+
     const body = await request.json();
     const updates = { ...body };
 
@@ -51,7 +57,7 @@ export async function PUT(
     }
 
     const product = await Product.findByIdAndUpdate(
-      params.id,
+      id,
       { $set: updates },
       { new: true, runValidators: true }
     );
@@ -76,7 +82,7 @@ export async function PUT(
 // DELETE /api/products/[id] - Delete product (Admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -87,7 +93,10 @@ export async function DELETE(
 
     await connectDB();
 
-    const product = await Product.findByIdAndDelete(params.id);
+    // Await params
+    const { id } = await params;
+
+    const product = await Product.findByIdAndDelete(id);
 
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
