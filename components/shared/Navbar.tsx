@@ -75,8 +75,8 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-white dark:border-black dark:border text-black ">
+                  <Avatar className="h-9 w-9 border-black border-2">
+                    <AvatarFallback className="bg-white  text-black ">
                       {getInitials(session.user.name)}
                     </AvatarFallback>
                   </Avatar>

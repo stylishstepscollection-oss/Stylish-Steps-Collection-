@@ -78,8 +78,8 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center mb-6">
-          <Avatar className="w-24 h-24 mb-4">
-            <AvatarFallback className="bg-zinc-500 text-primary text-2xl">
+          <Avatar className="w-24 h-24 border-black border-2 mb-4">
+            <AvatarFallback className="bg-linear-to-br dark:text-white from-pink-500 via-blue-700 to-green-600 text-black text-2xl">
               {getInitials(user.name)}
             </AvatarFallback>
           </Avatar>
@@ -145,7 +145,7 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
             </div>
             <div>
               <Label className="text-muted-foreground">Email</Label>
-              <p className="font-medium">{user.email}</p>
+              <p className="font-medium wrap-break-word">{user.email}</p>
             </div>
           </div>
         )}

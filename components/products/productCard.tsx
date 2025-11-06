@@ -143,7 +143,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
 
           {/* Price & Stock */}
-          <div className="flex items-center justify-between pt-2 border-t">
+          <div className="flex sm:items-center flex-col sm:justify-between pt-2 border-t">
             <div>
               <p className="text-lg md:text-xl font-bold text-accent-gold">
                 {formatPrice(product.price)}
@@ -156,7 +156,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
             
             {/* Rating (if you add reviews later) */}
-            <div className="flex items-center gap-1">
+            <div className="flex ml-auto sm:ml-0 items-center gap-1">
               <Star className="h-4 w-4 fill-accent-gold text-accent-gold" />
               <span className="text-sm font-medium">4.5</span>
             </div>
