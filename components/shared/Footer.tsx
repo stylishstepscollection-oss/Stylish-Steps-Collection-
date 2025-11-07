@@ -44,7 +44,7 @@ export default function Footer() {
     ],
     customer: [
       { label: 'My Account', href: '/profile' },
-      { label: 'My Orders', href: '/bor' },
+      { label: 'My Orders', href: '/order' },
       { label: 'Wishlist', href: '/wishlist' },
       { label: 'Measurements', href: '/measurement' },
     ],
@@ -115,7 +115,7 @@ export default function Footer() {
                 />
               </div>
               <div>
-                <h3 className="font-bold text-lg">Stylish Steps</h3>
+                <h3 className="font-bold text-lg">Stylish Steps Collection</h3>
                 <p className="text-xs text-muted-foreground">Step into Style</p>
               </div>
             </Link>
@@ -235,7 +235,7 @@ export default function Footer() {
             </div>
             <div>
               <p className="font-semibold text-sm mb-1">Email</p>
-              <p className="text-sm text-muted-foreground">support@stylishstyle.com</p>
+              <p className="text-sm text-muted-foreground">stylishstepscollection@gmail.com</p>
             </div>
           </div>
 

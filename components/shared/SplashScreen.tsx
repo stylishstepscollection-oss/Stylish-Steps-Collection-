@@ -6,29 +6,32 @@ import Image from 'next/image';
 import Logo from '@/public/SSC.png';
 
 export default function SplashScreen() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [shouldRender, setShouldRender] = useState(false);
+  const [isVisible, setIsVisible] = useState(true); // Start visible
+  const [shouldRender, setShouldRender] = useState(true); // Start rendering
 
   useEffect(() => {
     const isAppStart = !sessionStorage.getItem('appStarted');
     
     if (isAppStart) {
       sessionStorage.setItem('appStarted', 'true');
-      setShouldRender(true);
-      setIsVisible(true);
-
+      
+      // Longer display time - 3 seconds before fade
       const fadeOutTimer = setTimeout(() => {
         setIsVisible(false);
-      }, 2000);
+      }, 4000);
 
       const removeTimer = setTimeout(() => {
         setShouldRender(false);
-      }, 2500);
+      }, 4500);
 
       return () => {
         clearTimeout(fadeOutTimer);
         clearTimeout(removeTimer);
       };
+    } else {
+      // If app already started, hide immediately
+      setShouldRender(false);
+      setIsVisible(false);
     }
   }, []);
 
@@ -38,23 +41,23 @@ export default function SplashScreen() {
     <AnimatePresence mode="wait">
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0 }}
+          initial={{ opacity: 1 }} // Start fully visible
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.4, ease: 'easeInOut' }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
           className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-white dark:bg-gray-950"
         >
-          {/* Logo Container - Simplified and Professional */}
+          {/* Logo Container */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
-              duration: 0.5,
+              duration: 0.6,
               ease: [0.25, 0.1, 0.25, 1],
             }}
             className="relative flex flex-col items-center"
           >
-            {/* Logo - Clean presentation */}
+            {/* Logo */}
             <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 mb-6">
               <Image
                 src={Logo}
@@ -65,11 +68,11 @@ export default function SplashScreen() {
               />
             </div>
 
-            {/* Brand Name - Elegant Typography */}
+            {/* Brand Name */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
               className="text-center"
             >
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-light text-gray-900 dark:text-white tracking-wide mb-1">
@@ -81,11 +84,11 @@ export default function SplashScreen() {
             </motion.div>
           </motion.div>
 
-          {/* Minimal Loading Indicator */}
+          {/* Loading Indicator */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.5 }}
             className="absolute bottom-12 sm:bottom-16"
           >
             <motion.div

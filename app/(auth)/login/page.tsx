@@ -19,7 +19,7 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary to-primary-light">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-primary to-primary-light">
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl mb-4 animate-pulse">

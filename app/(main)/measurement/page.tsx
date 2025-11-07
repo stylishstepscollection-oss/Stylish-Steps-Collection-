@@ -136,7 +136,7 @@ Measurement Guide
 <li><strong>Inseam:</strong> Measure from crotch to ankle</li>
 </ul>
 </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <Button
               onClick={() => setActiveTab('camera')}
               className="flex-1 bg-zinc-500 hover:bg-zinc-500/90"
