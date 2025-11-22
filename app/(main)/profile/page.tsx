@@ -11,6 +11,7 @@ import {
   Settings,
   HelpCircle,
   LogOut,
+  AlertCircle,
 } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 
@@ -40,6 +41,12 @@ export default  function ProfilePage() {
       icon: Heart,
       label: 'Wishlist',
       description: 'Saved products',
+    },
+    {
+      href: '/disputes',
+      icon: AlertCircle,
+      label: 'My Disputes',
+      description: 'Dispute List',
     },
     {
       href: '/settings',

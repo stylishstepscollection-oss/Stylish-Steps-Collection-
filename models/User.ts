@@ -1,3 +1,4 @@
+// models/User.ts
 import mongoose, { Schema, Model } from 'mongoose';
 
 export interface IUser {
@@ -14,6 +15,8 @@ export interface IUser {
     inseam?: number;
     height?: number;
   };
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,13 +53,14 @@ const UserSchema = new Schema<IUser>(
       inseam: Number,
       height: Number,
     },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
   },
   {
     timestamps: true,
   }
 );
 
-// Prevent model recompilation in development
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 
 export default User;

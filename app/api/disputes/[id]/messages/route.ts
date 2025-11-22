@@ -6,6 +6,7 @@ import connectDB from '@/lib/mongodb';
 import Dispute from '@/models/Dispute';
 import { emailService } from '@/lib/emailjs';
 import mongoose, { Types } from 'mongoose';
+
 function isPopulatedUser(user: any): user is { _id: string; name: string; email: string } {
   return user && typeof user === 'object' && 'email' in user;
 }
@@ -44,9 +45,11 @@ export async function POST(
     if (!isAdmin && !isOwner) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
- if (!isPopulatedUser(dispute.user)) {
+
+    if (!isPopulatedUser(dispute.user)) {
       return NextResponse.json({ error: 'Order user data not found' }, { status: 500 });
     }
+
     const newMessage: { 
       sender: Types.ObjectId | string; 
       message: string;
@@ -62,14 +65,27 @@ export async function POST(
     dispute.messages.push(newMessage as any);
     await dispute.save();
 
+    // Send email notification to the other party
     const recipientEmail = isAdmin
       ? dispute.user.email
       : process.env.ADMIN_EMAIL || '';
     
     const senderName = session.user.name || (isAdmin ? 'Support Team' : 'Customer');
 
+    // Convert dispute to plain object for email service
+    const disputeForEmail = {
+      _id: dispute._id.toString(),
+      order: {
+        _id: dispute.order._id.toString(),
+      },
+      user: {
+        name: dispute.user.name,
+        email: dispute.user.email,
+      },
+    };
+
     await emailService.sendDisputeMessage(
-      dispute,
+      disputeForEmail,
       recipientEmail,
       senderName,
       message.trim()
@@ -83,6 +99,7 @@ export async function POST(
       message: JSON.parse(JSON.stringify(lastMessage)),
     });
   } catch (error: any) {
+    console.error('Dispute message error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

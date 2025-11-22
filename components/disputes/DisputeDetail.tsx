@@ -61,10 +61,8 @@ export default function DisputeDetail({ dispute }: DisputeDetailProps) {
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       {/* Status Alert */}
       <Alert className="mb-6">
-        <div className="flex items-center gap-2">
           {getStatusIcon(dispute.status)}
           <AlertDescription>{getStatusMessage(dispute.status)}</AlertDescription>
-        </div>
       </Alert>
 
       {/* Main Dispute Card */}

@@ -66,18 +66,27 @@ export default function LoginForm() {
               disabled={isLoading}
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required
-              disabled={isLoading}
-            />
-          </div>
+
+             <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label htmlFor="password">Password</Label>
+        <Link
+          href="/forgot-password"
+          className="text-sm text-accent-gold hover:underline"
+        >
+          Forgot password?
+        </Link>
+      </div>
+      <Input
+        id="password"
+        type="password"
+        placeholder="Enter your password"
+        value={formData.password}
+        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+        required
+        disabled={isLoading}
+      />
+    </div>
           <Button type="submit" className="w-full bg-zinc-500 hover:bg-zinc-500/90" disabled={isLoading}>
             {isLoading ? (
               <>

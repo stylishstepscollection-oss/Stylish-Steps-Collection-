@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { X, Download } from 'lucide-react';
+import { X, Download, Share } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -12,41 +12,58 @@ interface BeforeInstallPromptEvent extends Event {
 export default function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-      
-      // Check if user has dismissed the prompt before
-      const dismissed = localStorage.getItem('pwa-prompt-dismissed');
+    // Detect iOS
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    setIsIOS(ios);
+
+    // Check if already installed
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+      || (navigator as any).standalone;
+
+    if (isStandalone) {
+      setShowPrompt(false);
+      return;
+    }
+
+    // Check if user has dismissed the prompt before
+    const dismissed = localStorage.getItem('pwa-prompt-dismissed');
+    
+    if (ios) {
+      // For iOS, show instructions if not dismissed
       if (!dismissed) {
         setShowPrompt(true);
       }
-    };
+    } else {
+      // For Android/other browsers, listen for beforeinstallprompt
+      const handler = (e: Event) => {
+        e.preventDefault();
+        setDeferredPrompt(e as BeforeInstallPromptEvent);
+        if (!dismissed) {
+          setShowPrompt(true);
+        }
+      };
 
-    window.addEventListener('beforeinstallprompt', handler);
+      window.addEventListener('beforeinstallprompt', handler);
 
-    // Check if app is already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setShowPrompt(false);
+      return () => {
+        window.removeEventListener('beforeinstallprompt', handler);
+      };
     }
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
-    };
   }, []);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
-
+    
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-
+    
     if (outcome === 'accepted') {
       console.log('PWA installed');
     }
-
+    
     setDeferredPrompt(null);
     setShowPrompt(false);
   };
@@ -65,22 +82,36 @@ export default function PWAInstallPrompt() {
           <div className="flex items-start gap-3">
             <div className="flex-1">
               <h3 className="font-semibold mb-1">Install Stylish Steps Collection</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Install our app for quick access and offline features
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={handleInstall}
-                  className="bg-zinc-500 hover:bg-zinc-500/90"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Install
-                </Button>
-                <Button size="sm" variant="ghost" onClick={handleDismiss}>
-                  Not Now
-                </Button>
-              </div>
+              
+              {isIOS ? (
+                <>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Tap <Share className="inline h-4 w-4 mx-1" /> (Share button) then scroll down and tap "Add to Home Screen"
+                  </p>
+                  <Button size="sm" variant="ghost" onClick={handleDismiss}>
+                    Got it
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Install our app for quick access and offline features
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={handleInstall}
+                      className="bg-zinc-500 hover:bg-zinc-500/90"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Install
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={handleDismiss}>
+                      Not Now
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
             <Button
               size="icon"

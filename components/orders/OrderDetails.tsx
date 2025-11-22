@@ -11,6 +11,7 @@ import { Star, AlertCircle, Package, Truck, CheckCircle } from 'lucide-react';
 import ReviewForm from '@/components/reviews/ReviewForm';
 import DisputeForm from '@/components/disputes/DisputeForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import Link from 'next/link';
 
 interface OrderDetailsProps {
   order: IOrder;
@@ -201,6 +202,15 @@ return (
                 <AlertCircle className="h-4 w-4 mr-2" />
                 Report an Issue
               </Button>
+               <Button
+          variant="outline"
+          className="flex-1"
+          asChild
+        >
+          <Link href="/disputes">
+            View My Disputes
+          </Link>
+        </Button>
             </div>
           </CardContent>
         </Card>

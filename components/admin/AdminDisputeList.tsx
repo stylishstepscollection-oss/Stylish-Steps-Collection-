@@ -146,7 +146,7 @@ export default function AdminDisputeList({ disputes, initialStatus }: AdminDispu
                           )}
                         </div>
                         <Button size="sm" asChild>
-                          <Link href={`/admin/disputes/${dispute._id}`}>
+                          <Link href={`/admin-disputes/${dispute._id}`}>
                             View & Respond
                           </Link>
                         </Button>
