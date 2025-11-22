@@ -1,21 +1,20 @@
+// app/api/orders/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Order from '@/models/Order';
-import { emailService, sendEmail } from '@/lib/emailjs';
+import { emailService } from '@/lib/emailjs';
 
 // GET /api/orders - Get user's orders
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
-
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
 
@@ -42,17 +41,14 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/orders - Create new order
-// app/api/orders/route.ts (update POST method)
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
-
     const body = await request.json();
     const { products, total, contactMethod, contactInfo, notes } = body;
 
@@ -77,19 +73,54 @@ export async function POST(request: NextRequest) {
     await order.populate('user', 'name email');
     await order.populate('products.product', 'name price');
 
-    // Send confirmation email
-    await emailService.sendOrderConfirmation(order, session.user.email);
+    // Send confirmation email to customer
+    try {
+      await emailService.sendOrderConfirmation(order, session.user.email);
+    } catch (emailError) {
+      console.error('Failed to send customer email:', emailError);
+      // Don't fail the order creation if email fails
+    }
 
-    // Notify admin
+    // Notify admin - Create a simple admin notification
     const adminEmail = process.env.ADMIN_EMAIL || '';
     if (adminEmail) {
-      await sendEmail('template_new_order_admin', {
-        to_email: adminEmail,
-        order_id: order._id.slice(-8),
-        customer_name: session.user.name,
-        order_total: total,
-        order_items: products.map((p: any) => p.product.name).join(', '),
-      });
+      try {
+        const { sendEmail } = await import('@/lib/emailjs');
+        await sendEmail({
+          to_email: adminEmail,
+          email_subject: `New Order #${order._id.toString().slice(-8)}`,
+          badge_bg_color: '#d4edda',
+          badge_text_color: '#155724',
+          badge_text: '🛒 New Order',
+          email_title: 'New Order Received',
+          email_message: `A new order has been placed by ${session.user.name || 'a customer'}.`,
+          email_content_html: `
+            <div style="background-color: #f8f9fa; border-radius: 12px; padding: 24px;">
+              <h3 style="margin: 0 0 16px; font-size: 18px; color: #212529; font-weight: 600;">Order Details</h3>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #6c757d;">Order ID:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #212529; font-weight: 600; text-align: right;">#${order._id.toString().slice(-8)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #6c757d;">Customer:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #212529; text-align: right;">${session.user.name}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #6c757d;">Total:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #212529; font-weight: 600; text-align: right;">GHS ${total}</td>
+                </tr>
+              </table>
+            </div>
+          `,
+          cta_button_text: 'View Order',
+          cta_button_link: `${process.env.NEXT_PUBLIC_APP_URL}/admin/orders/${order._id}`,
+          footer_note: '',
+        });
+      } catch (emailError) {
+        console.error('Failed to send admin notification:', emailError);
+        // Don't fail the order creation if admin email fails
+      }
     }
 
     return NextResponse.json(
