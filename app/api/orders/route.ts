@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Order from '@/models/Order';
-import { emailService } from '@/lib/emailjs';
+import { emailService, sendEmail } from '@/lib/emailjs';
 
 // GET /api/orders - Get user's orders
 export async function GET(request: NextRequest) {
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/orders - Create new order
-e// app/api/orders/route.ts (update POST method)
+// app/api/orders/route.ts (update POST method)
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     // Notify admin
     const adminEmail = process.env.ADMIN_EMAIL || '';
     if (adminEmail) {
-      await emailService.sendEmail('template_new_order_admin', {
+      await sendEmail('template_new_order_admin', {
         to_email: adminEmail,
         order_id: order._id.slice(-8),
         customer_name: session.user.name,

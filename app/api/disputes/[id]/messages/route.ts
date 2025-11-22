@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Dispute from '@/models/Dispute';
 import { emailService } from '@/lib/emailjs';
-
+import mongoose, { Types } from 'mongoose';
 function isPopulatedUser(user: any): user is { _id: string; name: string; email: string } {
   return user && typeof user === 'object' && 'email' in user;
 }
@@ -47,17 +47,21 @@ export async function POST(
  if (!isPopulatedUser(dispute.user)) {
       return NextResponse.json({ error: 'Order user data not found' }, { status: 500 });
     }
-    const newMessage = {
-      sender: session.user.id,
+    const newMessage: { 
+      sender: Types.ObjectId | string; 
+      message: string;
+      timestamp: Date;
+      isAdmin: boolean;
+    } = {
+      sender: session.user.id, 
       message: message.trim(),
       timestamp: new Date(),
       isAdmin,
     };
 
-    dispute.messages.push(newMessage);
+    dispute.messages.push(newMessage as any);
     await dispute.save();
 
-    // Send email notification to the other party
     const recipientEmail = isAdmin
       ? dispute.user.email
       : process.env.ADMIN_EMAIL || '';
