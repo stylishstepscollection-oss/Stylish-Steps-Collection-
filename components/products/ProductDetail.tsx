@@ -11,6 +11,7 @@ import { IProduct } from '@/models/Product';
 import { Ruler, MessageCircle, ChevronLeft, Heart } from 'lucide-react';
 import { toast } from 'sonner';
 import { useWishlist } from '@/hooks/useWishlist';
+import ReviewList from '@/components/reviews/ReviewList';
 
 interface ProductDetailProps {
   product: IProduct;
@@ -206,8 +207,8 @@ const inWishlist = isInWishlist(product._id);
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Button
-            onClick={() => router.push('/measurement')}
-            className="bg-accent hover:bg-accent/50 text-primary"
+            onClick={() => router.push('/measurement-ai')}
+            className="bg-accent cursor-pointer hover:bg-accent/50 text-primary"
             disabled={!product.inStock}
           >
             <Ruler className="mr-2 h-4 w-4" />
@@ -215,7 +216,7 @@ const inWishlist = isInWishlist(product._id);
           </Button>
           <Button
             onClick={handleContactSeller}
-            className="bg-accent hover:bg-accent/50 text-primary"
+            className="bg-accent cursor-pointer hover:bg-accent/50 text-primary"
             disabled={!product.inStock}
           >
             <MessageCircle className="mr-2 h-4 w-4" />
@@ -252,6 +253,10 @@ const inWishlist = isInWishlist(product._id);
           </CardContent>
         </Card>
       </div>
+      <div className="mt-8">
+  <h2 className="text-2xl font-bold mb-4">Customer Reviews</h2>
+  <ReviewList productId={product._id} />
+</div>
     </div>
   </div>
 </div>

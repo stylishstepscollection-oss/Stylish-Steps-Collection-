@@ -117,82 +117,82 @@ export default function AdminUsersPage() {
 
   return (
     <>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Users</h1>
-          <p className="text-muted-foreground">Manage user accounts and permissions</p>
-        </div>
+     <div className="space-y-4 md:space-y-6">
+  <div>
+    <h1 className="text-2xl md:text-3xl font-bold">Users</h1>
+    <p className="text-sm md:text-base text-muted-foreground">
+      Manage user accounts and permissions
+    </p>
+  </div>
 
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search users by name or email..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="pl-10"
-            />
-          </div>
-          <Button onClick={handleSearch}>Search</Button>
-        </div>
+  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4">
+    <div className="relative flex-1">
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Input
+        placeholder="Search users..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+        className="pl-10"
+      />
+    </div>
+    <Button onClick={handleSearch} className="w-full sm:w-auto">
+      Search
+    </Button>
+  </div>
 
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-accent-gold" />
-          </div>
-        ) : users.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No users found</p>
-          </div>
-        ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user._id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Select
-                        value={user.role}
-                        onValueChange={(value) => handleRoleChange(user._id, value)}
-                      >
-                        <SelectTrigger className="w-[120px]">
-                          <SelectValue />
-                        </SelectTrigger>
+  {/* Table with horizontal scroll */}
+  <div className="rounded-md border overflow-x-auto">
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="min-w-[150px]">Name</TableHead>
+          <TableHead className="min-w-[200px]">Email</TableHead>
+          <TableHead className="min-w-[120px]">Role</TableHead>
+          <TableHead className="hidden sm:table-cell min-w-[120px]">
+            Joined
+          </TableHead>
+          <TableHead className="text-right min-w-[80px]">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user._id}>
+            <TableCell className="font-medium">{user.name}</TableCell>
+            <TableCell className="text-sm">{user.email}</TableCell>
+            <TableCell>
+              <Select
+                value={user.role}
+                onValueChange={(value) => handleRoleChange(user._id, value)}
+              >
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue />
+                </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="user">User</SelectItem>
                           <SelectItem value="admin">Admin</SelectItem>
                         </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>{formatDate(user.createdAt)}</TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setDeleteId(user._id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </div>
+                    </Select>
+            </TableCell>
+            <TableCell className="hidden sm:table-cell text-sm">
+              {formatDate(user.createdAt)}
+            </TableCell>
+            <TableCell className="text-right">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setDeleteId(user._id)}
+                className="h-8 w-8 p-0"
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </div>
+</div>
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>

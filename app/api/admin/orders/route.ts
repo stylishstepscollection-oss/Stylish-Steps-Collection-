@@ -1,3 +1,4 @@
+// app/api/admin/orders/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -7,7 +8,6 @@ import Order from '@/models/Order';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
 
     const query: any = {};
-
     if (status && status !== 'all') {
       query.status = status;
     }
@@ -29,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     const orders = await Order.find(query)
       .populate('user', 'name email')
-      .populate('products.product', 'name price images')
+      .populate('products.product', 'name price images') // Make sure to populate product details
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(skip)

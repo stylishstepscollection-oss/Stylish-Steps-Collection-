@@ -1,3 +1,4 @@
+// components/contact/ContactOptions.tsx - UPDATED
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,54 +21,118 @@ export default function ContactOptions({ productInfo }: ContactOptionsProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+233XXXXXXXXX';
-  const snapchatUsername = process.env.NEXT_PUBLIC_SNAPCHAT_USERNAME || 'stylishstyle';
-  const instagramUsername = process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'stylishstyle';
+  const snapchatUsername = process.env.NEXT_PUBLIC_SNAPCHAT_USERNAME || 'stylishstepscol';
+  const instagramUsername = process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'StepIntoStyles';
+  const xUsername = process.env.NEXT_PUBLIC_X_USERNAME || 'StepIntoStyles';
 
-  const handleContact = async (method: 'whatsapp' | 'snapchat' | 'instagram') => {
-    setIsLoading(true);
+  const handleContact = async (method: 'whatsapp' | 'snapchat' | 'instagram' | 'x') => {
+  setIsLoading(true);
 
+  try {
+    let orderId = null;
+
+    // Create draft order ONLY if there's product info
+    if (productInfo) {
+      try {
+        const draftResponse = await fetch('/api/orders/draft', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productId: productInfo.productId,
+            size: productInfo.size,
+            color: productInfo.color,
+            price: productInfo.price,
+            contactMethod: method,
+          }),
+        });
+
+        const draftData = await draftResponse.json();
+        
+        if (draftResponse.ok) {
+          orderId = draftData.orderId;
+          console.log('Draft order created:', orderId);
+        } else {
+          console.error('Failed to create draft order:', draftData.error);
+          toast.error('Could not create order draft, but you can still contact us!');
+          // Continue anyway - don't block user from contacting
+        }
+      } catch (draftError) {
+        console.error('Draft creation error:', draftError);
+        toast.error('Could not create order draft, but you can still contact us!');
+        // Continue anyway
+      }
+    }
+
+    // Save contact attempt (for analytics)
     try {
-      // Save contact attempt
       await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ method, productInfo }),
+        body: JSON.stringify({ 
+          method, 
+          productInfo,
+          orderId 
+        }),
       });
-
-      let url = '';
-      let message = '';
-
-      if (productInfo) {
-        message = `Hi! I'm interested in:\n\nProduct: ${productInfo.productName}\nPrice: $${productInfo.price}`;
-        if (productInfo.size) message += `\nSize: ${productInfo.size}`;
-        if (productInfo.color) message += `\nColor: ${productInfo.color}`;
-      } else {
-        message = 'Hi! I have a question about your products.';
-      }
-
-      switch (method) {
-        case 'whatsapp':
-          url = `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(
-            message
-          )}`;
-          break;
-        case 'snapchat':
-          url = `https://www.snapchat.com/add/${snapchatUsername}`;
-          toast.success('Opening Snapchat...');
-          break;
-        case 'instagram':
-          url = `https://www.instagram.com/${instagramUsername}`;
-          toast.success('Opening Instagram...');
-          break;
-      }
-
-      window.open(url, '_blank');
-    } catch (error) {
-      toast.error('Failed to initiate contact');
-    } finally {
-      setIsLoading(false);
+    } catch (contactError) {
+      console.error('Contact logging error:', contactError);
+      // Non-critical, continue
     }
-  };
+
+    let url = '';
+    let message = '';
+
+    if (productInfo && orderId) {
+      // Include order ID in message
+      message = `Hi! I'm interested in:\n\nOrder ID: ${orderId.slice(-8)}\nProduct: ${productInfo.productName}\nPrice: GH₵${productInfo.price}`;
+      if (productInfo.size) message += `\nSize: ${productInfo.size}`;
+      if (productInfo.color) message += `\nColor: ${productInfo.color}`;
+      message += `\n\nPlease confirm this order. Thank you!`;
+    } else if (productInfo) {
+      // Fallback without order ID
+      message = `Hi! I'm interested in:\n\nProduct: ${productInfo.productName}\nPrice: GH₵${productInfo.price}`;
+      if (productInfo.size) message += `\nSize: ${productInfo.size}`;
+      if (productInfo.color) message += `\nColor: ${productInfo.color}`;
+    } else {
+      message = 'Hi! I have a question about your products.';
+    }
+
+    switch (method) {
+      case 'whatsapp':
+        url = `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(
+          message
+        )}`;
+        toast.success('Opening WhatsApp...');
+        break;
+      case 'snapchat':
+        url = `https://www.snapchat.com/add/${snapchatUsername}`;
+        toast.success('Opening Snapchat... Please send the order details');
+        break;
+      case 'instagram':
+        url = `https://www.instagram.com/${instagramUsername}`;
+        toast.success('Opening Instagram... Please send the order details');
+        break;
+      case 'x':
+        url = `https://x.com/${xUsername}`;
+        toast.success('Opening X... Please send the order details');
+        break;
+    }
+
+    window.open(url, '_blank');
+
+    // Show success message with order tracking info
+    if (orderId) {
+      setTimeout(() => {
+        toast.success(`Order draft created! Track it in your orders page with ID: ${orderId.slice(-8)}`);
+      }, 1500);
+    }
+  } catch (error) {
+    console.error('Contact error:', error);
+    toast.error('Failed to initiate contact. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const contactMethods = [
     {
@@ -84,7 +149,7 @@ export default function ContactOptions({ productInfo }: ContactOptionsProps) {
       icon: '👻',
       description: 'Send snaps and messages',
       color: 'bg-yellow-400 hover:bg-yellow-500',
-      handle: `@${snapchatUsername}`,
+      handle: '@stylishstepscol',
     },
     {
       id: 'instagram',
@@ -92,7 +157,15 @@ export default function ContactOptions({ productInfo }: ContactOptionsProps) {
       icon: '📸',
       description: 'DM us on Instagram',
       color: 'bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600',
-      handle: `@${instagramUsername}`,
+      handle: '@StepIntoStyles',
+    },
+    {
+      id: 'x',
+      name: 'X (Twitter)',
+      icon: '𝕏',
+      description: 'Follow and message us',
+      color: 'bg-black hover:bg-gray-900',
+      handle: '@StepIntoStyles',
     },
   ];
 
@@ -107,7 +180,7 @@ export default function ContactOptions({ productInfo }: ContactOptionsProps) {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-3 sm:gap-4">
               <div
-                className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${method.color} rounded-full sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl transition-transform shrink-0 shadow-md`}
+                className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${method.color} rounded-full sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl transition-transform shrink-0 shadow-md ${method.id === "x" ? "text-white" : ""}`}
               >
                 {method.icon}
               </div>

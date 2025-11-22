@@ -152,59 +152,28 @@ export default function CareersPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Open Positions</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Find your next opportunity with Stylish Steps Collection
+              We don't have any open positions at the moment
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto space-y-6">
-            {openings.map((job, index) => (
-              <Card key={index} className="border-0 shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                    <div className="flex-1">
-                      <CardTitle className="text-xl mb-2">{job.title}</CardTitle>
-                      <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Briefcase className="h-4 w-4" />
-                          {job.department}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {job.location}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          {job.type}
-                        </div>
-                      </div>
-                    </div>
-                    <Button asChild>
-                      <Link href={`/contact?subject=Application: ${job.title}`}>
-                        Apply Now
-                      </Link>
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">{job.description}</p>
-                  <div>
-                    <h4 className="font-semibold mb-2">Requirements:</h4>
-                    <ul className="space-y-1">
-                      {job.requirements.map((req, idx) => (
-                        <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
-                          <span className="text-gray-900 dark:text-white mt-0.5">•</span>
-                          {req}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <Card className="max-w-2xl mx-auto text-center">
+            <CardContent className="p-12">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No Open Roles</h3>
+              <p className="text-muted-foreground mb-6">
+                We're not currently hiring, but we're always interested in connecting with talented individuals. Send us your resume and we'll reach out when the right opportunity comes up.
+              </p>
+              <Button size="lg" asChild>
+                <Link href="/contact?subject=Future Opportunities">
+                  Send Your Resume
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </section>
-
       {/* Application Process */}
       <section className="py-16 md:py-20">
         <div className="container mx-auto px-4">

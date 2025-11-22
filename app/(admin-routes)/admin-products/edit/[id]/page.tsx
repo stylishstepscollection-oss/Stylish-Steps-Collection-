@@ -4,15 +4,19 @@ import Product from '@/models/Product';
 import ProductForm from '@/components/admin/productForm';
 
 interface EditProductPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
   try {
     await connectDB();
-    const product = await Product.findById(params.id).lean();
+    
+    // Await params before accessing properties
+    const { id } = await params;
+    
+    const product = await Product.findById(id).lean();
 
     if (!product) {
       notFound();

@@ -16,6 +16,9 @@ import {
 import { formatPrice, formatDate } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { IOrder } from '@/models/Order';
 
 interface Stats {
   totalProducts: number;
@@ -30,9 +33,40 @@ interface Stats {
   salesByCategory: any[];
 }
 
+// Add proper type for draft orders with populated product
+interface DraftOrder extends Omit<IOrder, 'products'> {
+  products: {
+    product: {
+      _id: string;
+      name: string;
+      price: number;
+    };
+    quantity: number;
+    size?: string;
+    color?: string;
+    price: number;
+  }[];
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [draftOrders, setDraftOrders] = useState<DraftOrder[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    fetchDraftOrders();
+  }, []);
+
+  const fetchDraftOrders = async () => {
+    try {
+      const response = await fetch('/api/admin/orders?status=draft');
+      const data = await response.json();
+      setDraftOrders(data.orders || []);
+    } catch (error) {
+      console.error('Error fetching draft orders:', error);
+    }
+  };
 
   useEffect(() => {
     fetchStats();
@@ -67,14 +101,16 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">Overview of your store performance</p>
+        <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Dashboard</h1>
+        <p className="text-sm md:text-base text-muted-foreground">
+          Overview of your store performance
+        </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 md:gap-4 grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Products"
           value={stats.totalProducts}
@@ -102,7 +138,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Additional Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
@@ -137,7 +173,59 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Draft Orders Section */}
+      <Card>
+  <CardHeader>
+    <CardTitle>Pending Confirmations</CardTitle>
+    <p className="text-sm text-muted-foreground">
+      Draft orders awaiting confirmation from social media
+    </p>
+  </CardHeader>
+  <CardContent>
+    {draftOrders.length === 0 ? (
+      <p className="text-center text-muted-foreground py-4">
+        No draft orders pending confirmation
+      </p>
+    ) : (
+      <div className="space-y-3">
+        {draftOrders.map((order) => (
+          <div key={order._id} className="border-b pb-3 last:border-0">
+            <div className="flex justify-between items-start gap-4">
+              <div className="flex-1 min-w-0">
+                <p className="font-medium">Order #{order._id.slice(-8)}</p>
+                <p className="text-sm text-muted-foreground truncate">
+                  {order.products[0]?.product?.name || 'Product details loading...'}
+                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-lg">
+                    {order.contactMethod === 'whatsapp' && '💬'}
+                    {order.contactMethod === 'instagram' && '📸'}
+                    {order.contactMethod === 'snapchat' && '👻'}
+                  </span>
+                  <Badge variant="outline" className="capitalize text-xs">
+                    {order.contactMethod}
+                  </Badge>
+                  {order.draftExpiresAt && (
+                    <span className="text-xs text-muted-foreground">
+                      Expires: {formatDate(order.draftExpiresAt)}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => router.push(`/admin-orders/${order._id}/confirm`)}
+              >
+                Confirm Order
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </CardContent>
+</Card>
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
         {/* Recent Orders */}
         <Card>
           <CardHeader>

@@ -17,11 +17,12 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   if (!session) {
     notFound();
   }
+  const { id } = await params;
 
   try {
     await connectDB();
     const order = await Order.findOne({
-      _id: params.id,
+      _id: id,
       user: session.user.id,
     })
       .populate('products.product')

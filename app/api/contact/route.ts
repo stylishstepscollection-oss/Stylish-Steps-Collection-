@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import {useSession} from 'next-auth/react';
+import { authOptions } from '@/lib/auth';
+
 
 export async function POST(request: NextRequest) {
   try {
-    const {status} = useSession()
-;
+       const session = await getServerSession(authOptions);
+   
 
-    if (status === "unauthenticated") {
+   if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

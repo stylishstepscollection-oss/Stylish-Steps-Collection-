@@ -30,7 +30,7 @@ export default  function ProfilePage() {
       description: 'View order history',
     },
     {
-      href: '/measurement',
+      href: '/measurement-ai',
       icon: Ruler,
       label: 'My Measurements',
       description: 'Manage body measurements',

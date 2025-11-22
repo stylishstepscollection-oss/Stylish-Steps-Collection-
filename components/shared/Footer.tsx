@@ -46,14 +46,14 @@ export default function Footer() {
       { label: 'My Account', href: '/profile' },
       { label: 'My Orders', href: '/order' },
       { label: 'Wishlist', href: '/wishlist' },
-      { label: 'Measurements', href: '/measurement' },
+      { label: 'Measurements', href: '/measurement-ai' },
     ],
     support: [
       { label: 'Help Center', href: '/help' },
       { label: 'Contact Us', href: '/contact' },
       { label: 'Shipping Info', href: '/help#shipping' },
       { label: 'Returns', href: '/help#returns' },
-      { label: 'Size Guide', href: '/measurement' },
+      { label: 'Size Guide', href: '/measurement-ai' },
     ],
     company: [
       { label: 'About Us', href: '/about' },

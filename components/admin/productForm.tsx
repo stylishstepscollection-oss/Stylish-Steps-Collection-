@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Upload, X, ImageIcon } from 'lucide-react';
 import { categories, getSubcategories } from '@/lib/categories';
 import { IProduct } from '@/models/Product';
 
@@ -30,7 +31,7 @@ interface FormDataState {
   name: string;
   description: string;
   price: number;
-  category: CategoryKey; // Use the specific union type
+  category: CategoryKey;
   subcategory: string;
   stock: number;
   featured: boolean;
@@ -42,6 +43,10 @@ interface FormDataState {
 export default function ProductForm({ product, isEdit = false }: ProductFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>(product?.images || []);
+  const [imagePreviews, setImagePreviews] = useState<string[]>(product?.images || []);
+  
   const [formData, setFormData] = useState<FormDataState>({
     name: product?.name || '',
     description: product?.description || '',
@@ -55,15 +60,92 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
     tags: product?.tags?.join(', ') || '',
   });
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImages(true);
+
+    try {
+      const newPreviews: string[] = [];
+      const newUrls: string[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          toast.error(`${file.name} is not an image file`);
+          continue;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`${file.name} is too large (max 5MB)`);
+          continue;
+        }
+
+        // Create preview
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result as string);
+          if (newPreviews.length === files.length) {
+            setImagePreviews((prev) => [...prev, ...newPreviews]);
+          }
+        };
+        reader.readAsDataURL(file);
+
+        // Upload to API
+        const formData = new FormData();
+        formData.append('file', file);
+formData.append('purpose', 'product'); // Add this line
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || `Failed to upload ${file.name}`);
+        }
+
+        newUrls.push(data.url);
+      }
+
+      setImageUrls((prev) => [...prev, ...newUrls]);
+      toast.success(`${files.length} image(s) uploaded successfully`);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to upload images');
+    } finally {
+      setUploadingImages(false);
+      // Reset input
+      e.target.value = '';
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImageUrls((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      if (imageUrls.length === 0) {
+        toast.error('Please add at least one product image');
+        setIsLoading(false);
+        return;
+      }
+
       const payload = {
         ...formData,
         price: Number(formData.price),
         stock: Number(formData.stock),
+        images: imageUrls,
         sizes: formData.sizes.split(',').map((s) => s.trim()).filter(Boolean),
         colors: formData.colors.split(',').map((c) => c.trim()).filter(Boolean),
         tags: formData.tags.split(',').map((t) => t.trim()).filter(Boolean),
@@ -85,7 +167,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
       }
 
       toast.success(isEdit ? 'Product updated successfully' : 'Product created successfully');
-      router.push('/admin/products');
+      router.push('/admin-products');
       router.refresh();
     } catch (error: any) {
       toast.error(error.message || 'Failed to save product');
@@ -99,11 +181,81 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
   return (
     <form onSubmit={handleSubmit}>
       <Card>
-        <CardHeader>
-          <CardTitle>{isEdit ? 'Edit Product' : 'Add New Product'}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <CardHeader className="px-4 md:px-6">
+      <CardTitle className="text-xl md:text-2xl">
+        {isEdit ? 'Edit Product' : 'Add New Product'}
+      </CardTitle>
+    </CardHeader> <CardContent className="space-y-6">
+          {/* Product Images Section */}
+          <div className="space-y-4">
+            <Label>Product Images *</Label>
+            
+            {/* Image Previews */}
+            {imagePreviews.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
+                {imagePreviews.map((preview, index) => (
+                  <div key={index} className="relative group">
+                    <div className="relative w-full aspect-square rounded-lg overflow-hidden border-2 border-border">
+                      <Image
+                        src={preview}
+                        alt={`Product image ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                      {index === 0 && (
+                        <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                          Main
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Upload Button */}
+            <div>
+              <Input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageUpload}
+                disabled={uploadingImages}
+                className="hidden"
+              />
+              <Label
+                htmlFor="image-upload"
+                className={`flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-8 cursor-pointer hover:bg-muted/50 transition-colors ${
+                  uploadingImages ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {uploadingImages ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Uploading images...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-5 w-5" />
+                    <span>Click to upload images (max 5MB each)</span>
+                  </>
+                )}
+              </Label>
+              <p className="text-xs text-muted-foreground mt-2">
+                Supported formats: JPG, PNG, WEBP. First image will be the main product image.
+              </p>
+            </div>
+          </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Product Name *</Label>
               <Input
@@ -115,7 +267,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="price">Price ($) *</Label>
+              <Label htmlFor="price">Price (GHS) *</Label>
               <Input
                 id="price"
                 type="number"
@@ -145,7 +297,7 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
               <Select
                 value={formData.category}
                 onValueChange={(value) =>
-                  setFormData({ ...formData,category: value as CategoryKey, subcategory: '' })
+                  setFormData({ ...formData, category: value as CategoryKey, subcategory: '' })
                 }
               >
                 <SelectTrigger>
@@ -243,12 +395,12 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
             />
           </div>
 
-          <div className="flex gap-4 pt-4">
-            <Button
-              type="submit"
-              className="bg-zinc-500 hover:bg-zinc-500/90"
-              disabled={isLoading}
-            >
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4">
+        <Button
+          type="submit"
+          className="bg-zinc-500 hover:bg-zinc-500/90 w-full sm:w-auto"
+          disabled={isLoading || uploadingImages}
+        >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -260,15 +412,15 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
                 'Create Product'
               )}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.back()}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-          </div>
+           <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.back()}
+          disabled={isLoading || uploadingImages}
+          className="w-full sm:w-auto"
+        >
+          Cancel
+        </Button>          </div>
         </CardContent>
       </Card>
     </form>
