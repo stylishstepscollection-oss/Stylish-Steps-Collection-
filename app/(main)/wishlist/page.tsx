@@ -7,15 +7,20 @@ import EmptyState from '@/components/shared/EmptyState';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { Heart } from 'lucide-react';
 import { IProduct } from '@/models/Product';
+import { useSession } from 'next-auth/react';
 
 export default function WishlistPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [products, setProducts] = useState<IProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (status === 'loading') return;
+    if (status === 'authenticated') {
     fetchWishlist();
-  }, []);
+    }
+  }, [products, status]);
 
   const fetchWishlist = async () => {
     try {
