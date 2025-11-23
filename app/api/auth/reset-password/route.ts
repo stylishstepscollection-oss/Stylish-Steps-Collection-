@@ -1,4 +1,3 @@
-// app/api/auth/reset-password/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
@@ -25,11 +24,15 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    // Hash the token to compare with database
+    // Hash the received token to match database
     const hashedToken = crypto
       .createHash('sha256')
       .update(token)
       .digest('hex');
+
+    console.log('🔍 Password Reset Attempt:');
+    console.log('Received token:', token);
+    console.log('Hashed token:', hashedToken);
 
     // Find user with valid token
     const user = await User.findOne({
@@ -38,11 +41,36 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid or expired reset token' },
-        { status: 400 }
-      );
+      // Enhanced debugging
+      const userWithToken = await User.findOne({
+        resetPasswordToken: hashedToken,
+      });
+      
+      if (userWithToken) {
+        console.log('❌ Token found but expired');
+        console.log('Token expired at:', userWithToken.resetPasswordExpires);
+        console.log('Current time:', new Date());
+        return NextResponse.json(
+          { error: 'Reset link has expired. Please request a new one.' },
+          { status: 400 }
+        );
+      } else {
+        console.log('❌ No user found with this token');
+        // Check if any user has a reset token
+        const anyUserWithReset = await User.findOne({
+          resetPasswordToken: { $exists: true, $ne: null }
+        });
+        if (anyUserWithReset) {
+          console.log('Found user with different token:', anyUserWithReset.resetPasswordToken);
+        }
+        return NextResponse.json(
+          { error: 'Invalid reset link. Please request a new one.' },
+          { status: 400 }
+        );
+      }
     }
+
+    console.log('✅ Valid token found for user:', user.email);
 
     // Hash new password
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -52,6 +80,8 @@ export async function POST(request: NextRequest) {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
+
+    console.log('✅ Password reset successful for:', user.email);
 
     return NextResponse.json({
       message: 'Password reset successful. You can now log in with your new password.',

@@ -1,4 +1,3 @@
-// app/api/auth/forgot-password/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
@@ -27,21 +26,27 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Generate reset token
+    // Generate PLAIN reset token (this goes in the email)
     const resetToken = crypto.randomBytes(32).toString('hex');
+    
+    // Hash the token for database storage
     const hashedToken = crypto
       .createHash('sha256')
       .update(resetToken)
       .digest('hex');
 
-    // Set token and expiry (1 hour)
+    console.log('Generated plain token:', resetToken);
+    console.log('Hashed token for DB:', hashedToken);
+
+    // Save HASHED token to database
     user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
     await user.save();
 
-    // Send email
+    // Send PLAIN token in email
     try {
       await emailService.sendPasswordReset(user.email, resetToken, user.name);
+      console.log('✅ Password reset email sent with token:', resetToken);
     } catch (emailError) {
       console.error('Error sending password reset email:', emailError);
       // Clear the reset token if email fails

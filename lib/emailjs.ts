@@ -334,36 +334,40 @@ export const emailService = {
   },
 
   sendPasswordReset: async (email: string, resetToken: string, userName: string) => {
-    const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken}`;
-    
-    const contentHTML = `
-      <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
-        <p style="margin: 0; font-size: 14px; color: #856404; line-height: 1.6;">
-          <strong>⚠️ Security Notice:</strong> This link will expire in 1 hour. If you didn't request this, please ignore this email or contact support if you're concerned about your account security.
-        </p>
-      </div>
-      <div style="background-color: #f8f9fa; border-radius: 8px; padding: 16px; margin-top: 24px;">
-        <p style="margin: 0 0 8px; font-size: 13px; color: #6c757d;">
-          If the button doesn't work, copy and paste this link into your browser:
-        </p>
-        <p style="margin: 0; font-size: 12px; color: #667eea; word-break: break-all; font-family: monospace;">
-          ${resetLink}
-        </p>
-      </div>
-    `;
+  // CRITICAL: Use the resetToken EXACTLY as received
+  const resetURL = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken}`;
+  
+  console.log('📧 Sending reset email to:', email);
+  console.log('📧 Reset URL:', resetURL);
+  console.log('📧 Token in URL:', resetToken);
+  
+  const contentHTML = `
+    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+      <p style="margin: 0; font-size: 14px; color: #856404; line-height: 1.6;">
+        <strong>⚠️ Security Notice:</strong> This link will expire in 1 hour. If you didn't request this, please ignore this email or contact support if you're concerned about your account security.
+      </p>
+    </div>
+    <div style="background-color: #f8f9fa; border-radius: 8px; padding: 16px; margin-top: 24px;">
+      <p style="margin: 0 0 8px; font-size: 13px; color: #6c757d;">
+        If the button doesn't work, copy and paste this link into your browser:
+      </p>
+      <p style="margin: 0; font-size: 12px; color: #667eea; word-break: break-all; font-family: monospace;">
+        ${resetURL}
+      </p>
+    </div>
+  `;
 
-    return sendEmail({
-      to_email: email,
-      email_subject: 'Reset Your Password',
-      badge_bg_color: '#fff3cd',
-      badge_text_color: '#856404',
-      badge_text: '🔐 Password Reset',
-      email_title: 'Reset Your Password',
-      email_message: `Hi ${userName}, we received a request to reset your password for your Stylish Steps Collection account.`,
-      email_content_html: contentHTML,
-      cta_button_text: 'Reset My Password',
-      cta_button_link: resetLink,
-      footer_note: 'This link can only be used once and will expire soon for security reasons.',
-    });
-  },
-};
+  return sendEmail({
+    to_email: email,
+    email_subject: 'Reset Your Password',
+    badge_bg_color: '#fff3cd',
+    badge_text_color: '#856404',
+    badge_text: '🔐 Password Reset',
+    email_title: 'Reset Your Password',
+    email_message: `Hi ${userName}, we received a request to reset your password for your Stylish Steps Collection account.`,
+    email_content_html: contentHTML,
+    cta_button_text: 'Reset My Password',
+    cta_button_link: resetURL, // Make sure this uses resetURL
+    footer_note: 'This link can only be used once and will expire soon for security reasons.',
+  });
+}}
