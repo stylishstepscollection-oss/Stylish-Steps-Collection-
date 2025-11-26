@@ -91,7 +91,7 @@ export default function AdminDisputeDetail({ dispute: initialDispute }: AdminDis
   return (
     <div className="space-y-4 md:space-y-6 px-4 md:px-0 pb-20">
       <div className="mb-4 md:mb-6">
-        <Button variant="ghost" onClick={() => router.push('/admin/disputes')} className="mb-4">
+        <Button variant="ghost" onClick={() => router.push('/admin-disputes')} className="mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           <span className="hidden sm:inline">Back to Disputes</span>
           <span className="sm:hidden">Back</span>

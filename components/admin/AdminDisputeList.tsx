@@ -42,7 +42,7 @@ export default function AdminDisputeList({ disputes, initialStatus }: AdminDispu
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    router.push(`/admin/disputes?status=${value}`);
+    router.push(`/admin-disputes?status=${value}`);
   };
 
   const filterDisputes = (status: string) => {

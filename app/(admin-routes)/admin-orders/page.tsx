@@ -153,7 +153,7 @@ export default function AdminOrdersPage() {
               </SelectContent>
             </Select>
 
-            <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+            {/* <Select value={paymentFilter} onValueChange={setPaymentFilter}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Payment Status" />
               </SelectTrigger>
@@ -164,7 +164,7 @@ export default function AdminOrdersPage() {
                 <SelectItem value="failed">Failed</SelectItem>
                 <SelectItem value="refunded">Refunded</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
           </div>
         </div>
       </Card>
