@@ -170,13 +170,10 @@ return (
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <p className="text-sm">
-              <span className="font-semibold">Method:</span>{' '}
-              <span className="capitalize">{order.contactMethod}</span>
-            </p>
-            {order.contactInfo && (
+           
+            {order.shippingInfo.phone && (
               <p className="text-sm">
-                <span className="font-semibold">Contact:</span> {order.contactInfo}
+                <span className="font-semibold">Contact:</span> {order.shippingInfo.phone}
               </p>
             )}
             {order.notes && (

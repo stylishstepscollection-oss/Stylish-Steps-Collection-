@@ -26,9 +26,7 @@ export default async function OrderConfirmPage({ params }: OrderConfirmPageProps
       .populate('products.product', 'name price images')
       .lean();
 
-    if (!order || order.status !== 'draft') {
-      notFound();
-    }
+  
 
     return <OrderConfirmForm order={JSON.parse(JSON.stringify(order))} />;
   } catch (error) {

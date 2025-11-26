@@ -13,14 +13,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Moon, Sun, User, LogOut, Settings, ShoppingBag } from 'lucide-react';
+import { Moon, Sun, ShoppingCart, User, LogOut, Settings, ShoppingBag } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
+import { useCart } from '@/hooks/useCart';
+
 import  logo from '@/public/SSC.png';
 export default function Navbar() {
   const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  // Use a selector so the component subscribes to changes and re-renders when items change.
+  const itemCount = useCart((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
 
   // useEffect only runs on the client, so now we can safely show the UI
   useEffect(() => { 
@@ -69,6 +73,17 @@ export default function Navbar() {
             )}
             <span className="sr-only">Toggle theme</span>
           </Button>
+
+          <Button variant="ghost" size="icon" asChild className="relative">
+  <Link href="/cart">
+    <ShoppingCart className="h-5 w-5" />
+    {mounted && itemCount > 0 && (
+      <span className="absolute -top-1 -right-1 bg-accent-gold text-black dark:text-white  text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+        {itemCount}
+      </span>
+    )}
+  </Link>
+</Button>
 
           {session ? (
             <DropdownMenu>

@@ -15,41 +15,21 @@ export async function POST(
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
     await connectDB();
-
     const { id } = await params;
     const body = await request.json();
-    const { contactInfo, externalOrderId, estimatedDelivery, notes } = body;
-
-    // Validate required fields
-    if (!contactInfo || !contactInfo.trim()) {
-      return NextResponse.json(
-        { error: 'Contact information is required' },
-        { status: 400 }
-      );
-    }
-
+    const { estimatedDelivery, notes } = body; // Removed contactInfo and externalOrderId
+    
     const order = await Order.findById(id);
     
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
-
-    if (order.status !== 'draft') {
-      return NextResponse.json(
-        { error: 'Only draft orders can be confirmed' },
-        { status: 400 }
-      );
-    }
-
+    
+    
+    
     // Convert draft to confirmed order
     order.status = 'pending';
-    order.contactInfo = contactInfo.trim();
-    
-    if (externalOrderId) {
-      order.externalOrderId = externalOrderId.trim();
-    }
     
     if (estimatedDelivery) {
       order.estimatedDelivery = new Date(estimatedDelivery);
@@ -58,7 +38,7 @@ export async function POST(
     if (notes) {
       order.notes = notes.trim();
     }
-
+    
     // Add to status history
     order.statusHistory.push({
       status: 'pending',
@@ -66,12 +46,9 @@ export async function POST(
       note: 'Order confirmed by admin',
       updatedBy: new mongoose.Types.ObjectId(session.user.id),
     });
-
+    
     await order.save();
-
-    // TODO: Send confirmation notification to user
-    // await sendOrderConfirmationEmail(order);
-
+    
     return NextResponse.json({
       message: 'Order confirmed successfully',
       order: JSON.parse(JSON.stringify(order)),

@@ -8,10 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatPrice, getCategoryIcon, getCategoryLabel } from '@/lib/utils';
 import { IProduct } from '@/models/Product';
-import { Ruler, MessageCircle, ChevronLeft, Heart } from 'lucide-react';
+import { Ruler, MessageCircle, ChevronLeft, Heart, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import { useWishlist } from '@/hooks/useWishlist';
 import ReviewList from '@/components/reviews/ReviewList';
+import { useCart } from '@/hooks/useCart';
 
 interface ProductDetailProps {
   product: IProduct;
@@ -20,15 +21,33 @@ interface ProductDetailProps {
 export default function ProductDetail({ product }: ProductDetailProps) {
   const router = useRouter();
   const [selectedSize, setSelectedSize] = useState(
-    product.sizes && product.sizes.length > 0 ? product.sizes[0] : null
+    product.sizes && product.sizes.length > 0 ? product.sizes[0] : ""
   );
   const [selectedColor, setSelectedColor] = useState(
-    product.colors && product.colors.length > 0 ? product.colors[0] : null
+    product.colors && product.colors.length > 0 ? product.colors[0] : ""
   );
   const [selectedImage, setSelectedImage] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
 const { isInWishlist, toggleWishlist } = useWishlist();
 const inWishlist = isInWishlist(product._id);
+const { addItem } = useCart();
+
+
+const handleAddToCart = () => {
+  if (!product.inStock) {
+    toast.error('Product is out of stock');
+    return;
+  }
+
+  addItem({
+    productId: product._id,
+    productName: product.name,
+    price: product.price,
+    size: selectedSize,
+    color: selectedColor,
+    image: product.images?.[0],
+  });
+};
 
   const handleContactSeller = () => {
     // Store selected product info in sessionStorage for contact page
@@ -206,23 +225,33 @@ const inWishlist = isInWishlist(product._id);
 
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <Button
-            onClick={() => router.push('/measurement-ai')}
-            className="bg-accent cursor-pointer hover:bg-accent/50 text-primary"
-            disabled={!product.inStock}
-          >
-            <Ruler className="mr-2 h-4 w-4" />
-            Get Measured
-          </Button>
-          <Button
-            onClick={handleContactSeller}
-            className="bg-accent cursor-pointer hover:bg-accent/50 text-primary"
-            disabled={!product.inStock}
-          >
-            <MessageCircle className="mr-2 h-4 w-4" />
-            Contact Seller
-          </Button>
-        </div>
+  <Button
+    onClick={() => router.push('/measurement-ai')}
+    variant="outline"
+    disabled={!product.inStock}
+    className='border-black dark:border-white'
+  >
+    <Ruler className="mr-2 h-4 w-4" />
+    Get Measured
+  </Button>
+  <Button
+    onClick={handleAddToCart}
+    className="bg-black dark:bg-white hover:bg-black/90 dark:hover:bg-white/90 text-white dark:text-black"
+    disabled={!product.inStock}
+  >
+    <ShoppingBag className="mr-2 h-4 w-4" />
+    Add to Cart
+  </Button>
+</div>
+
+<Button
+  onClick={handleContactSeller}
+  variant="ghost"
+  className="w-full bg-zinc-600 border-black dark:border-white mb-3"
+>
+  <MessageCircle className="mr-2 h-4 w-4" />
+  Contact Seller
+</Button>
 
         {/* Product Details Card */}
         <Card>

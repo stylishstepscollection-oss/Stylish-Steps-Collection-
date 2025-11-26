@@ -1,14 +1,11 @@
-// models/Order.ts
 import mongoose, { Schema, Model } from 'mongoose';
 
-// Add a populated user interface
 interface PopulatedUser {
   _id: string;
   name: string;
   email: string;
 }
 
-// Add a populated product interface
 interface PopulatedProduct {
   _id: string;
   name: string;
@@ -18,18 +15,21 @@ interface PopulatedProduct {
 
 export interface IOrder {
   _id: string;
-  user: mongoose.Types.ObjectId | PopulatedUser; // Can be either ObjectId or populated
+  user: mongoose.Types.ObjectId | PopulatedUser;
   products: {
-    product: mongoose.Types.ObjectId | PopulatedProduct; // Can be either ObjectId or populated
+    product: mongoose.Types.ObjectId | PopulatedProduct;
     quantity: number;
     size?: string;
     color?: string;
     price: number;
   }[];
   total: number;
-  status: 'draft' | 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  contactMethod: 'whatsapp' | 'snapchat' | 'instagram';
-  contactInfo: string;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  shippingInfo: {
+    phone: string;
+    address: string;
+    city: string;
+  };
   notes?: string;
   statusHistory: {
     status: string;
@@ -37,9 +37,9 @@ export interface IOrder {
     note?: string;
     updatedBy?: mongoose.Types.ObjectId;
   }[];
-  externalConversationId?: string;
-  draftExpiresAt?: Date;
-  externalOrderId?: string;
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  paymentReference?: string;
+  paymentMethod: string;
   trackingNumber?: string;
   estimatedDelivery?: Date;
   cancellationReason?: string;
@@ -84,18 +84,22 @@ const OrderSchema = new Schema<IOrder>(
     },
     status: {
       type: String,
-      enum: ['draft', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'],
-      default: 'draft',
+      enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+      default: 'pending',
     },
-    contactMethod: {
-      type: String,
-      enum: ['whatsapp', 'snapchat', 'instagram'],
-      required: true,
-    },
-    contactInfo: {
-      type: String,
-      required: false,
-      default: '',
+    shippingInfo: {
+      phone: {
+        type: String,
+        required: true,
+      },
+      address: {
+        type: String,
+        required: true,
+      },
+      city: {
+        type: String,
+        required: true,
+      },
     },
     notes: String,
     statusHistory: [
@@ -115,9 +119,16 @@ const OrderSchema = new Schema<IOrder>(
         },
       },
     ],
-    externalConversationId: String,
-    draftExpiresAt: Date,
-    externalOrderId: String,
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'paid', 'failed', 'refunded'],
+      default: 'pending',
+    },
+    paymentReference: String,
+    paymentMethod: {
+      type: String,
+      default: 'paystack',
+    },
     trackingNumber: String,
     estimatedDelivery: Date,
     cancellationReason: String,
@@ -138,13 +149,16 @@ OrderSchema.pre('save', function (next) {
     this.statusHistory.push({
       status: this.status,
       timestamp: new Date(),
-      note: this.status === 'draft' ? 'Draft order created' : 'Order created',
+      note: 'Order created',
     });
   }
   next();
 });
 
-OrderSchema.index({ status: 1, draftExpiresAt: 1 });
+OrderSchema.index({ status: 1, createdAt: -1 });
+OrderSchema.index({ user: 1, createdAt: -1 });
+OrderSchema.index({ paymentStatus: 1 });
 
-const Order: Model<IOrder> = mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);
+const Order: Model<IOrder> =
+  mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);
 export default Order;

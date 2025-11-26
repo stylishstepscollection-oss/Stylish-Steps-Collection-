@@ -15,6 +15,7 @@ export interface IDispute {
     message: string;
     timestamp: Date;
     isAdmin: boolean;
+    isRead?: boolean;
   }[];
   createdAt: Date;
   updatedAt: Date;
@@ -67,6 +68,10 @@ const DisputeSchema = new Schema<IDispute>(
           type: Boolean,
           default: false,
         },
+        isRead: {
+      type: Boolean,
+      default: false,
+    },
       },
     ],
   },

@@ -28,8 +28,7 @@ export async function GET(
       .populate('order')
       .populate('user', 'name email')
       .populate('messages.sender', 'name')
-      .lean();
-
+      .lean(); 
     if (!dispute) {
       return NextResponse.json({ error: 'Dispute not found' }, { status: 404 });
     }

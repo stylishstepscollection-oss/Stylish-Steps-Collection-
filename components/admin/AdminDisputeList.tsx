@@ -1,4 +1,3 @@
-// components/admin/AdminDisputeList.tsx
 'use client';
 
 import { useState } from 'react';
@@ -60,41 +59,43 @@ export default function AdminDisputeList({ disputes, initialStatus }: AdminDispu
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Dispute Management</h1>
-        <p className="text-muted-foreground">
+    <div className="space-y-4 md:space-y-6 px-4 md:px-0">
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Dispute Management</h1>
+        <p className="text-sm md:text-base text-muted-foreground">
           Manage and resolve customer disputes
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="all">
-            All ({statusCounts.all})
-          </TabsTrigger>
-          <TabsTrigger value="open">
-            Open ({statusCounts.open})
-          </TabsTrigger>
-          <TabsTrigger value="investigating">
-            Investigating ({statusCounts.investigating})
-          </TabsTrigger>
-          <TabsTrigger value="resolved">
-            Resolved ({statusCounts.resolved})
-          </TabsTrigger>
-          <TabsTrigger value="closed">
-            Closed ({statusCounts.closed})
-          </TabsTrigger>
-        </TabsList>
+        <div className=" -mx-4 px-4 md:mx-0 md:px-0">
+          <TabsList className="grid w-full min-w-max h-full md:min-w-0 grid-cols-3 sm:grid-cols-5">
+            <TabsTrigger value="all" className="text-xs md:text-sm">
+              All ({statusCounts.all})
+            </TabsTrigger>
+            <TabsTrigger value="open" className="text-xs md:text-sm">
+              Open ({statusCounts.open})
+            </TabsTrigger>
+            <TabsTrigger value="investigating" className="text-xs md:text-sm whitespace-nowrap">
+              Investigating ({statusCounts.investigating})
+            </TabsTrigger>
+            <TabsTrigger value="resolved" className="text-xs md:text-sm">
+              Resolved ({statusCounts.resolved})
+            </TabsTrigger>
+            <TabsTrigger value="closed" className="text-xs md:text-sm">
+              Closed ({statusCounts.closed})
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         {['all', 'open', 'investigating', 'resolved', 'closed'].map((status) => (
-          <TabsContent key={status} value={status} className="space-y-4 mt-4">
+          <TabsContent key={status} value={status} className="space-y-3 md:space-y-4 mt-4">
             {filterDisputes(status).length === 0 ? (
               <Card>
-                <CardContent className="p-12 text-center">
-                  <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">No Disputes</h3>
-                  <p className="text-muted-foreground">
+                <CardContent className="p-8 md:p-12 text-center">
+                  <AlertCircle className="h-10 w-10 md:h-12 md:w-12 mx-auto mb-3 md:mb-4 text-muted-foreground" />
+                  <h3 className="text-base md:text-lg font-semibold mb-2">No Disputes</h3>
+                  <p className="text-sm md:text-base text-muted-foreground">
                     No disputes found with this status
                   </p>
                 </CardContent>
@@ -106,46 +107,44 @@ export default function AdminDisputeList({ disputes, initialStatus }: AdminDispu
 
                 return (
                   <Card key={dispute._id} className="hover:shadow-md transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <CardTitle className="text-lg">
-                              {getTypeLabel(dispute.type)}
-                            </CardTitle>
-                            <Badge variant={statusConfig.variant} className="capitalize">
-                              <StatusIcon className="h-3 w-3 mr-1" />
-                              {dispute.status}
-                            </Badge>
-                          </div>
-                          <div className="space-y-1 text-sm text-muted-foreground">
-                            <p>
-                              Dispute #{dispute._id.slice(-8)} • Order #
-                              {dispute.order._id.slice(-8)}
-                            </p>
-                            <p>
-                              Customer: {dispute.user.name} ({dispute.user.email})
-                            </p>
-                            <p>Opened {formatDate(dispute.createdAt)}</p>
-                          </div>
+                    <CardHeader className="pb-3">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <CardTitle className="text-base md:text-lg line-clamp-2 flex-1">
+                            {getTypeLabel(dispute.type)}
+                          </CardTitle>
+                          <Badge variant={statusConfig.variant} className="capitalize shrink-0">
+                            <StatusIcon className="h-3 w-3 mr-1" />
+                            <span className="hidden sm:inline">{dispute.status}</span>
+                            <span className="sm:hidden">{dispute.status.slice(0, 4)}</span>
+                          </Badge>
+                        </div>
+                        <div className="space-y-1 text-xs md:text-sm text-muted-foreground">
+                          <p className="break-words">
+                            Dispute #{dispute._id.slice(-8)} • Order #{dispute.order._id.slice(-8)}
+                          </p>
+                          <p className="break-words">
+                            Customer: {dispute.user.name} ({dispute.user.email})
+                          </p>
+                          <p>Opened {formatDate(dispute.createdAt)}</p>
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                    <CardContent className="pt-0">
+                      <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4 line-clamp-2 break-words">
                         {dispute.description}
                       </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 md:gap-4 text-xs md:text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
-                            <MessageSquare className="h-4 w-4" />
+                            <MessageSquare className="h-3 w-3 md:h-4 md:w-4" />
                             {dispute.messages.length} messages
                           </div>
                           {dispute.images && dispute.images.length > 0 && (
                             <span>{dispute.images.length} photos</span>
                           )}
                         </div>
-                        <Button size="sm" asChild>
+                        <Button size="sm" asChild className="w-full sm:w-auto">
                           <Link href={`/admin-disputes/${dispute._id}`}>
                             View & Respond
                           </Link>

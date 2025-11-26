@@ -97,7 +97,7 @@ export default function AdminAnalyticsPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatPrice(totalRevenue)}</div>
+            <div className="text-2xl font-bold wrap-break-word">{formatPrice(totalRevenue)}</div>
             <p className="text-xs text-muted-foreground">{totalOrders} orders</p>
           </CardContent>
         </Card>

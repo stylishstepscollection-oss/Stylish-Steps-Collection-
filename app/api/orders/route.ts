@@ -5,6 +5,10 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Order from '@/models/Order';
 import { emailService } from '@/lib/emailjs';
+import Product from '@/models/Product';
+
+// Force Product model registration
+const _ = Product;
 
 // GET /api/orders - Get user's orders
 export async function GET(request: NextRequest) {
@@ -49,39 +53,63 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
+    
+    // Ensure Product model is registered
+    if (!Product) {
+      throw new Error('Product model not loaded');
+    }
+    
     const body = await request.json();
-    const { products, total, contactMethod, contactInfo, notes } = body;
+    const { products, total, shippingInfo, notes, paymentReference, paymentStatus } = body;
 
-    if (!products || !products.length || !total || !contactMethod || !contactInfo) {
+    // Validate required fields
+    if (!products || !products.length || !total || !shippingInfo || !paymentReference) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
+    // Validate shipping info
+    if (!shippingInfo.phone || !shippingInfo.address || !shippingInfo.city) {
+      return NextResponse.json(
+        { error: 'Incomplete shipping information' },
+        { status: 400 }
+      );
+    }
+
+    // Create order (payment already verified)
     const order = await Order.create({
       user: session.user.id,
       products,
       total,
-      contactMethod,
-      contactInfo,
+      shippingInfo,
       notes,
-      status: 'pending',
+      trackingNumber: `TRACK-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      paymentReference,
+      paymentStatus: paymentStatus || 'paid',
+      paymentMethod: 'paystack',
+      status: 'processing', // Start as processing since payment is confirmed
     });
 
-    // Populate for email
-    await order.populate('user', 'name email');
-    await order.populate('products.product', 'name price');
+    // Populate for response - use findById with populate instead
+    const populatedOrder = await Order.findById(order._id)
+      .populate('user', 'name email')
+      .populate('products.product', 'name price images')
+      .lean();
+
+    if (!populatedOrder) {
+      throw new Error('Failed to retrieve created order');
+    }
 
     // Send confirmation email to customer
     try {
-      await emailService.sendOrderConfirmation(order, session.user.email);
+      await emailService.sendOrderConfirmation(populatedOrder, session.user.email);
     } catch (emailError) {
       console.error('Failed to send customer email:', emailError);
-      // Don't fail the order creation if email fails
     }
 
-    // Notify admin - Create a simple admin notification
+    // Notify admin
     const adminEmail = process.env.ADMIN_EMAIL || '';
     if (adminEmail) {
       try {
@@ -110,6 +138,10 @@ export async function POST(request: NextRequest) {
                   <td style="padding: 8px 0; font-size: 14px; color: #6c757d;">Total:</td>
                   <td style="padding: 8px 0; font-size: 14px; color: #212529; font-weight: 600; text-align: right;">GHS ${total}</td>
                 </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #6c757d;">Payment:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #28a745; font-weight: 600; text-align: right;">✓ PAID</td>
+                </tr>
               </table>
             </div>
           `,
@@ -119,14 +151,13 @@ export async function POST(request: NextRequest) {
         });
       } catch (emailError) {
         console.error('Failed to send admin notification:', emailError);
-        // Don't fail the order creation if admin email fails
       }
     }
 
     return NextResponse.json(
       {
         message: 'Order created successfully',
-        order: JSON.parse(JSON.stringify(order)),
+        order: JSON.parse(JSON.stringify(populatedOrder)),
       },
       { status: 201 }
     );

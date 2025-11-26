@@ -19,7 +19,8 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const search = searchParams.get('search');
 
-    const query: any = {};
+    // Exclude the current admin from the list
+    const query: any = { _id: { $ne: session.user.id } };
 
     if (search) {
       query.$or = [

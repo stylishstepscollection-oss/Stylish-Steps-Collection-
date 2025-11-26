@@ -33,40 +33,13 @@ interface Stats {
   salesByCategory: any[];
 }
 
-// Add proper type for draft orders with populated product
-interface DraftOrder extends Omit<IOrder, 'products'> {
-  products: {
-    product: {
-      _id: string;
-      name: string;
-      price: number;
-    };
-    quantity: number;
-    size?: string;
-    color?: string;
-    price: number;
-  }[];
-}
+
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [draftOrders, setDraftOrders] = useState<DraftOrder[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchDraftOrders();
-  }, []);
-
-  const fetchDraftOrders = async () => {
-    try {
-      const response = await fetch('/api/admin/orders?status=draft');
-      const data = await response.json();
-      setDraftOrders(data.orders || []);
-    } catch (error) {
-      console.error('Error fetching draft orders:', error);
-    }
-  };
 
   useEffect(() => {
     fetchStats();
@@ -173,58 +146,6 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Draft Orders Section */}
-      <Card>
-  <CardHeader>
-    <CardTitle>Pending Confirmations</CardTitle>
-    <p className="text-sm text-muted-foreground">
-      Draft orders awaiting confirmation from social media
-    </p>
-  </CardHeader>
-  <CardContent>
-    {draftOrders.length === 0 ? (
-      <p className="text-center text-muted-foreground py-4">
-        No draft orders pending confirmation
-      </p>
-    ) : (
-      <div className="space-y-3">
-        {draftOrders.map((order) => (
-          <div key={order._id} className="border-b pb-3 last:border-0">
-            <div className="flex justify-between items-start gap-4">
-              <div className="flex-1 min-w-0">
-                <p className="font-medium">Order #{order._id.slice(-8)}</p>
-                <p className="text-sm text-muted-foreground truncate">
-                  {order.products[0]?.product?.name || 'Product details loading...'}
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-lg">
-                    {order.contactMethod === 'whatsapp' && '💬'}
-                    {order.contactMethod === 'instagram' && '📸'}
-                    {order.contactMethod === 'snapchat' && '👻'}
-                  </span>
-                  <Badge variant="outline" className="capitalize text-xs">
-                    {order.contactMethod}
-                  </Badge>
-                  {order.draftExpiresAt && (
-                    <span className="text-xs text-muted-foreground">
-                      Expires: {formatDate(order.draftExpiresAt)}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <Button
-                size="sm"
-                onClick={() => router.push(`/admin-orders/${order._id}/confirm`)}
-              >
-                Confirm Order
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
-  </CardContent>
-</Card>
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
         {/* Recent Orders */}
         <Card>

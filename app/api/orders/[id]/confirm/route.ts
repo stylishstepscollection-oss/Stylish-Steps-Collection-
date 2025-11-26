@@ -19,15 +19,12 @@ export async function POST(
     const body = await request.json();
     const { contactInfo, externalOrderId, estimatedDelivery, notes } = body;
 
-    const order = await Order.findById(id);
-    if (!order || order.status !== 'draft') {
-      return NextResponse.json({ error: 'Invalid order' }, { status: 400 });
-    }
+    const order = await Order.findById(id) ;
+if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }    
 
     // Convert draft to confirmed order
-    order.status = 'pending';
-    order.contactInfo = contactInfo;
-    order.externalOrderId = externalOrderId; // WhatsApp message ID, etc.
     order.estimatedDelivery = estimatedDelivery ? new Date(estimatedDelivery) : undefined;
     order.notes = notes;
     

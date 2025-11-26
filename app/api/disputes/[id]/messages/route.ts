@@ -55,11 +55,13 @@ export async function POST(
       message: string;
       timestamp: Date;
       isAdmin: boolean;
+        isRead: boolean; // Add this
     } = {
       sender: session.user.id, 
       message: message.trim(),
       timestamp: new Date(),
       isAdmin,
+        isRead: false, // Add this - new messages start as unread
     };
 
     dispute.messages.push(newMessage as any);
