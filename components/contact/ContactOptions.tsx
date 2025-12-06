@@ -32,37 +32,7 @@ export default function ContactOptions({ productInfo }: ContactOptionsProps) {
     let orderId = null;
 
     // Create draft order ONLY if there's product info
-    if (productInfo) {
-      try {
-        const draftResponse = await fetch('/api/orders/draft', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            productId: productInfo.productId,
-            size: productInfo.size,
-            color: productInfo.color,
-            price: productInfo.price,
-            contactMethod: method,
-          }),
-        });
-
-        const draftData = await draftResponse.json();
-        
-        if (draftResponse.ok) {
-          orderId = draftData.orderId;
-          console.log('Draft order created:', orderId);
-        } else {
-          console.error('Failed to create draft order:', draftData.error);
-          toast.error('Could not create order draft, but you can still contact us!');
-          // Continue anyway - don't block user from contacting
-        }
-      } catch (draftError) {
-        console.error('Draft creation error:', draftError);
-        toast.error('Could not create order draft, but you can still contact us!');
-        // Continue anyway
-      }
-    }
-
+    
     // Save contact attempt (for analytics)
     try {
       await fetch('/api/contact', {
@@ -80,22 +50,9 @@ export default function ContactOptions({ productInfo }: ContactOptionsProps) {
     }
 
     let url = '';
-    let message = '';
+    let message = 'Hello, I would like to inquire about your products.';
 
-    if (productInfo && orderId) {
-      // Include order ID in message
-      message = `Hi! I'm interested in:\n\nOrder ID: ${orderId.slice(-8)}\nProduct: ${productInfo.productName}\nPrice: GH₵${productInfo.price}`;
-      if (productInfo.size) message += `\nSize: ${productInfo.size}`;
-      if (productInfo.color) message += `\nColor: ${productInfo.color}`;
-      message += `\n\nPlease confirm this order. Thank you!`;
-    } else if (productInfo) {
-      // Fallback without order ID
-      message = `Hi! I'm interested in:\n\nProduct: ${productInfo.productName}\nPrice: GH₵${productInfo.price}`;
-      if (productInfo.size) message += `\nSize: ${productInfo.size}`;
-      if (productInfo.color) message += `\nColor: ${productInfo.color}`;
-    } else {
-      message = 'Hi! I have a question about your products.';
-    }
+    
 
     switch (method) {
       case 'whatsapp':
@@ -120,12 +77,7 @@ export default function ContactOptions({ productInfo }: ContactOptionsProps) {
 
     window.open(url, '_blank');
 
-    // Show success message with order tracking info
-    if (orderId) {
-      setTimeout(() => {
-        toast.success(`Order draft created! Track it in your orders page with ID: ${orderId.slice(-8)}`);
-      }, 1500);
-    }
+  
   } catch (error) {
     console.error('Contact error:', error);
     toast.error('Failed to initiate contact. Please try again.');

@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Moon, Sun, ShoppingCart, User, LogOut, Settings, ShoppingBag } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
@@ -41,10 +41,10 @@ export default function Navbar() {
   };
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/login' });
+    await signOut({ callbackUrl: '/' });
   };
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-60 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center space-x-2">
           <div className="flex bg-white items-center justify-center w-11 h-11  rounded-lg">
@@ -89,11 +89,15 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9 border-black border-2">
-                    <AvatarFallback className="bg-white  text-black ">
-                      {getInitials(session.user.name)}
-                    </AvatarFallback>
-                  </Avatar>
+                 <Avatar className="w-12 h-12 sm:w-18 sm:h-18 border-2 border-primary mb-3 sm:mb-4">
+  {session.user.image ? (
+    <AvatarImage src={session.user.image} alt={session.user.name} className='object-cover'/>
+  ) : (
+    <AvatarFallback className="bg-white text-black">
+      {getInitials(session.user.name)}
+    </AvatarFallback>
+  )}
+</Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -138,7 +142,7 @@ export default function Navbar() {
               <Button asChild variant="ghost" size="sm">
                 <Link href="/login">Sign In</Link>
               </Button>
-              <Button asChild size="sm" className="bg-zinc-500 hover:bg-zinc-500">
+              <Button asChild size="sm" className="dark:bg-white dark:hover:bg-white/90 bg-black  dark:text-black font-medium text-white ">
                 <Link href="/register">Sign Up</Link>
               </Button>
             </div>

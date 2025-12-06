@@ -67,7 +67,7 @@ const handleAddToCart = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
+      <div className="sticky top-16 z-50 bg-background/95 backdrop-blur border-b">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Button

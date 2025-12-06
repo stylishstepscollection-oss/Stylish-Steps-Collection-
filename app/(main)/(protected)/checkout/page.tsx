@@ -1,3 +1,4 @@
+// app/(main)/checkout/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -12,6 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { formatPrice } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -48,7 +51,6 @@ export default function CheckoutPage() {
 
     setLoading(true);
     try {
-      // Store checkout data in sessionStorage for use after payment
       const checkoutData = {
         products: items.map(item => ({
           product: item.productId,
@@ -68,7 +70,6 @@ export default function CheckoutPage() {
 
       sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
 
-      // Initialize Paystack payment WITHOUT creating order yet
       const paymentResponse = await fetch('/api/payment/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -85,10 +86,8 @@ export default function CheckoutPage() {
 
       const { authorization_url, reference } = await paymentResponse.json();
 
-      // Store reference for verification
       sessionStorage.setItem('paymentReference', reference);
 
-      // Redirect to Paystack payment page
       window.location.href = authorization_url;
     } catch (error: any) {
       console.error('Checkout error:', error);
@@ -108,7 +107,7 @@ export default function CheckoutPage() {
               <CardTitle>Shipping Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
+              <div className="space-y-3">
                 <Label htmlFor="phone">Phone Number *</Label>
                 <Input
                   id="phone"
@@ -120,7 +119,7 @@ export default function CheckoutPage() {
                 />
               </div>
 
-              <div>
+              <div className="space-y-3">
                 <Label htmlFor="address">Delivery Address *</Label>
                 <Textarea
                   id="address"
@@ -132,7 +131,7 @@ export default function CheckoutPage() {
                 />
               </div>
 
-              <div>
+              <div className="space-y-3">
                 <Label htmlFor="city">City *</Label>
                 <Input
                   id="city"
@@ -143,7 +142,7 @@ export default function CheckoutPage() {
                 />
               </div>
 
-              <div>
+              <div className="space-y-3">
                 <Label htmlFor="notes">Order Notes (Optional)</Label>
                 <Textarea
                   id="notes"
@@ -163,18 +162,54 @@ export default function CheckoutPage() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="max-h-64 overflow-y-auto space-y-3">
+              <div className="max-h-80 overflow-y-auto space-y-3 pr-2">
                 {items.map((item, index) => (
-                  <div key={index} className="flex justify-between text-sm pb-3 border-b last:border-0">
-                    <div className="flex-1 pr-4">
-                      <p className="font-medium line-clamp-1">{item.productName}</p>
-                      <p className="text-muted-foreground text-xs">
-                        Qty: {item.quantity}
-                        {item.size && ` • ${item.size}`}
-                        {item.color && ` • ${item.color}`}
-                      </p>
-                    </div>
-                    <p className="font-semibold whitespace-nowrap">{formatPrice(item.price * item.quantity)}</p>
+                  <div 
+                    key={index}
+                    className="group"
+                  >
+                    <Link 
+                      href={`/products/${item.productId}`}
+                      className="flex gap-3 pb-3 border-b last:border-0 hover:bg-muted/30 rounded-lg p-2 -m-2 transition-all"
+                    >
+                      {/* Product Image */}
+                      {item.image && (
+                        <div className="relative w-16 h-16 rounded-md overflow-hidden bg-muted shrink-0 group-hover:ring-2 group-hover:ring-primary/50 transition-all">
+                          <Image 
+                            src={item.image} 
+                            alt={item.productName} 
+                            fill 
+                            className="object-cover" 
+                            sizes="64px"
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Product Details */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                          {item.productName}
+                        </p>
+                        <div className="flex flex-wrap gap-1.5 mt-1 text-xs text-muted-foreground">
+                          <span>Qty: {item.quantity}</span>
+                          {item.size && (
+                            <>
+                              <span>•</span>
+                              <span>{item.size}</span>
+                            </>
+                          )}
+                          {item.color && (
+                            <>
+                              <span>•</span>
+                              <span className="capitalize">{item.color}</span>
+                            </>
+                          )}
+                        </div>
+                        <p className="font-semibold text-sm mt-1.5">
+                          {formatPrice(item.price * item.quantity)}
+                        </p>
+                      </div>
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -186,7 +221,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Delivery:</span>
-                  <span className="font-medium">Calculated at delivery</span>
+                  <span className="font-medium text-muted-foreground">Calculated at delivery</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg pt-2 border-t">
                   <span>Total:</span>

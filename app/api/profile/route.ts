@@ -1,3 +1,4 @@
+// app/api/profile/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -41,15 +42,21 @@ export async function PUT(request: NextRequest) {
     await connectDB();
 
     const body = await request.json();
-    const { name } = body;
+    const { name, image } = body;
 
     if (!name) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
+    // Prepare update data
+    const updateData: any = { name };
+    if (image !== undefined) {
+      updateData.image = image;
+    }
+
     const user = await User.findByIdAndUpdate(
       session.user.id,
-      { name },
+      updateData,
       { new: true }
     ).select('-password');
 

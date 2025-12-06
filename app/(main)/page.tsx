@@ -1,5 +1,5 @@
+// app/(main)/page.tsx
 import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Product from '@/models/Product';
@@ -8,12 +8,11 @@ import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/products/productCard';
 import { categories } from '@/lib/categories';
 import { HeroCarousel } from '@/components/home/heroCarousel';
+import VideoTutorial from '@/components/home/videoTutorial';
+import HelpButton from '@/components/home/HelpButton';
+
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/login');
-  }
 
   await connectDB();
 
@@ -32,25 +31,52 @@ export default async function HomePage() {
 
   const serializedProducts = JSON.parse(JSON.stringify(featuredProducts));
 
-  
+  // Check if user is new (created within last 7 days) - only if session exists
+  const isNewUser = session?.user?.createdAt
+    ? new Date().getTime() - new Date(session.user.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000
+    : false;
+
   return (
     <div className="min-h-screen">
       {/* Hero Carousel Section */}
       <section className="relative w-full overflow-hidden">
-        <HeroCarousel/>
+        <HeroCarousel />
       </section>
 
       {/* Welcome Message */}
       <section className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-2">
-            Welcome back, {session.user.name}! 👋
-          </h2>
-          <p className="text-muted-foreground">
-            Explore our latest collection
-          </p>
+          {session ? (
+            <>
+              <h2 className="text-3xl font-bold mb-2">
+                Welcome back, {session.user.name}! 👋
+              </h2>
+              <p className="text-muted-foreground">
+                Explore our latest collection
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 className="text-3xl font-bold mb-2">
+                Welcome to Stylish Steps Collection! 👋
+              </h2>
+              <p className="text-muted-foreground">
+                Browse our collection or{' '}
+                <Link href="/register" className="text-accent-gold hover:underline font-medium">
+                  sign up
+                </Link>{' '}
+                to get started
+              </p>
+            </>
+          )}
         </div>
       </section>
+
+      {/* Video Tutorial - Show prominently for new users, always available via help button */}
+      {session && isNewUser && <VideoTutorial />}
+
+      {/* Floating Help Button - Always visible for quick access */}
+      {session && <HelpButton />}
 
       {/* Categories */}
       <section className="container mx-auto px-4 py-8">
@@ -97,21 +123,24 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* Video Tutorial for returning users - less prominent */}
+      {session && !isNewUser && <VideoTutorial />}
+
       {/* Features */}
       <section className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-3 gap-6">
+          <div className="p-6 bg-card border rounded-2xl text-center">
+            <div className="text-4xl mb-3">🛒</div>
+            <h3 className="font-semibold mb-2">Easy Shopping</h3>
+            <p className="text-sm text-muted-foreground">
+              Add items to cart and checkout with secure payment
+            </p>
+          </div>
           <div className="p-6 bg-card border rounded-2xl text-center">
             <div className="text-4xl mb-3">📏</div>
             <h3 className="font-semibold mb-2">AI Measurements</h3>
             <p className="text-sm text-muted-foreground">
               Get accurate body measurements using our AI technology
-            </p>
-          </div>
-          <div className="p-6 bg-card border rounded-2xl text-center">
-            <div className="text-4xl mb-3">💬</div>
-            <h3 className="font-semibold mb-2">Direct Contact</h3>
-            <p className="text-sm text-muted-foreground">
-              Chat with sellers via WhatsApp, Snapchat, or Instagram
             </p>
           </div>
           <div className="p-6 bg-card border rounded-2xl text-center">

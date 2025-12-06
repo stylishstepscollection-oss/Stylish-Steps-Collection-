@@ -5,7 +5,8 @@ export interface IUser {
   _id: string;
   name: string;
   email: string;
-  password: string;
+  image?: string;
+  password?: string;
   role: 'user' | 'admin';
   measurements?: {
     chest?: number;
@@ -28,6 +29,7 @@ const UserSchema = new Schema<IUser>(
       required: [true, 'Please provide a name'],
       trim: true,
     },
+    image: String,
     email: {
       type: String,
       required: [true, 'Please provide an email'],
@@ -37,7 +39,7 @@ const UserSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: [true, 'Please provide a password'],
+      required: false,
       minlength: 6,
     },
     role: {

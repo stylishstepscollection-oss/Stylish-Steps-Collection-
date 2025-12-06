@@ -1,3 +1,4 @@
+// app/(main)/cart/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,7 +14,6 @@ import { useRouter } from 'next/navigation';
 export default function CartPage() {
   const router = useRouter();
   const { items, updateQuantity, removeItem, getTotal, getItemCount } = useCart();
-  // local version to force re-render after cart mutations when the hook doesn't trigger one
   const [localQuantities, setLocalQuantities] = useState<Record<string, number>>({});
 
   const makeKey = (productId: string, size?: string, color?: string) =>
@@ -26,7 +26,7 @@ export default function CartPage() {
     color?: string
   ) => {
     const key = makeKey(productId, size, color);
-    const newQty = Math.max(1, quantity); // keep minimum 1
+    const newQty = Math.max(1, quantity);
     setLocalQuantities((s) => ({ ...s, [key]: newQty }));
     updateQuantity(productId, newQty, size, color);
   };
@@ -41,7 +41,6 @@ export default function CartPage() {
     removeItem(productId, size, color);
   };
 
-  // keep localQuantities in sync with actual items: remove entries for items that no longer exist
   useEffect(() => {
     setLocalQuantities((prev) => {
       const next: Record<string, number> = {};
@@ -53,7 +52,6 @@ export default function CartPage() {
     });
   }, [items]);
 
-  // compute displayed totals using local overrides
   const displayedItemCount = items.reduce((sum, item) => {
     const key = makeKey(item.productId, item.size, item.color);
     return sum + (localQuantities[key] ?? item.quantity);
@@ -86,14 +84,23 @@ export default function CartPage() {
         {items.map((item, index) => (
           <Card key={`${item.productId}-${item.size}-${item.color}-${index}`} className="p-4">
             <div className="flex gap-4">
-              {item.image && (
-                <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted shrink-0">
+              {/* Clickable Image */}
+              <Link 
+                href={`/products/${item.productId}`}
+                className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted shrink-0 hover:opacity-80 transition-opacity"
+              >
+                {item.image && (
                   <Image src={item.image} alt={item.productName} fill className="object-cover" />
-                </div>
-              )}
+                )}
+              </Link>
               
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold">{item.productName}</h3>
+                {/* Clickable Product Name */}
+                <Link href={`/products/${item.productId}`}>
+                  <h3 className="font-semibold hover:text-primary transition-colors cursor-pointer">
+                    {item.productName}
+                  </h3>
+                </Link>
                 <div className="text-sm text-muted-foreground space-y-1">
                   {item.size && <p>Size: {item.size}</p>}
                   {item.color && <p>Color: {item.color}</p>}

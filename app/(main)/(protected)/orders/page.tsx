@@ -27,12 +27,12 @@ export default function OrdersPage() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      // Map 'completed' tab to 'delivered' status
+      // Map 'delivered' tab to 'delivered' status
       if (activeTab !== 'all') {
         const statusMap: Record<string, string> = {
           'pending': 'pending',
           'processing': 'processing',
-          'completed': 'delivered', // Fix: map completed to delivered
+          'delivered': 'delivered', // Fix: map delivered to delivered
         };
         params.append('status', statusMap[activeTab] || activeTab);
       }
@@ -70,7 +70,7 @@ export default function OrdersPage() {
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="processing">Processing</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
+          <TabsTrigger value="delivered">delivered</TabsTrigger>
         </TabsList>
 
         {loading ? (

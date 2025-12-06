@@ -1,4 +1,4 @@
-// components/orders/OrderDetails.tsx - Add Review/Dispute buttons
+// components/orders/OrderDetails.tsx
 'use client';
 
 import { useState } from 'react';
@@ -30,7 +30,7 @@ export default function OrderDetails({ order }: OrderDetailsProps) {
     setShowReviewForm(true);
   };
 
-return (
+  return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       {/* Order Header */}
       <Card className="mb-6">
@@ -117,7 +117,11 @@ return (
         <CardContent className="space-y-4">
           {order.products.map((item: any, index: number) => (
             <div key={index} className="flex items-start gap-4 pb-4 border-b last:border-0">
-              <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted shrink-0">
+              {/* Clickable Image */}
+              <Link
+                href={`/products/${item.product._id}`}
+                className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted shrink-0 hover:opacity-80 transition-opacity"
+              >
                 {item.product.images && item.product.images[0] ? (
                   <img
                     src={item.product.images[0]}
@@ -129,9 +133,14 @@ return (
                     📦
                   </div>
                 )}
-              </div>
+              </Link>
               <div className="flex-1 min-w-0">
-                <h4 className="font-semibold">{item.product.name}</h4>
+                {/* Clickable Product Name */}
+                <Link href={`/products/${item.product._id}`}>
+                  <h4 className="font-semibold hover:text-primary transition-colors cursor-pointer">
+                    {item.product.name}
+                  </h4>
+                </Link>
                 <div className="flex flex-wrap gap-2 mt-1 text-sm text-muted-foreground">
                   {item.size && <span>Size: {item.size}</span>}
                   {item.color && <span>Color: {item.color}</span>}
@@ -170,7 +179,6 @@ return (
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-           
             {order.shippingInfo.phone && (
               <p className="text-sm">
                 <span className="font-semibold">Contact:</span> {order.shippingInfo.phone}
@@ -199,15 +207,15 @@ return (
                 <AlertCircle className="h-4 w-4 mr-2" />
                 Report an Issue
               </Button>
-               <Button
-          variant="outline"
-          className="flex-1"
-          asChild
-        >
-          <Link href="/disputes">
-            View My Disputes
-          </Link>
-        </Button>
+              <Button
+                variant="outline"
+                className="flex-1"
+                asChild
+              >
+                <Link href="/disputes">
+                  View My Disputes
+                </Link>
+              </Button>
             </div>
           </CardContent>
         </Card>
