@@ -37,6 +37,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    // Check if user has a password (not a Google OAuth user)
+    if (!user.password) {
+      return NextResponse.json(
+        { error: 'Cannot change password for accounts signed in with Google' },
+        { status: 400 }
+      );
+    }
+
     // Verify current password
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
 
