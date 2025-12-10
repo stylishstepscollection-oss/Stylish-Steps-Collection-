@@ -45,7 +45,7 @@ export default function Navbar() {
   };
   return (
     <nav className="sticky top-0 z-60 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4">
+      <div className="w-full flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center space-x-2">
           <div className="flex bg-white items-center justify-center w-11 h-11  rounded-lg">
             <Image src={logo} alt="logo" width={150} height={150} className=''/>
@@ -89,7 +89,7 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                 <Avatar className="w-12 h-12 sm:w-18 sm:h-18 border-2 border-primary mb-3 sm:mb-4">
+                 <Avatar className="w-10 h-10   border-2 border-primary mb-3 sm:mb-4">
   {session.user.image ? (
     <AvatarImage src={session.user.image} alt={session.user.name} className='object-cover'/>
   ) : (

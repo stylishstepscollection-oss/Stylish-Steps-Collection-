@@ -42,7 +42,7 @@ export default function HelpButton() {
         <Button
           variant="outline"
           size="sm"
-          className="fixed bottom-20 md:bottom-6 right-4 z-40 shadow-lg rounded-full h-12 px-4 bg-background hover:bg-muted"
+          className="fixed bottom-20 md:bottom-6 right-4 z-40 shadow-lg rounded-full h-12 px-4 bg-background dark:bg-accent hover:bg-muted"
         >
           <HelpCircle className="mr-2 h-4 w-4" />
           How to Shop

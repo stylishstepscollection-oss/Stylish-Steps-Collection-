@@ -1,4 +1,3 @@
-// app/(main)/page.tsx
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
@@ -10,6 +9,8 @@ import { categories } from '@/lib/categories';
 import { HeroCarousel } from '@/components/home/heroCarousel';
 import VideoTutorial from '@/components/home/videoTutorial';
 import HelpButton from '@/components/home/HelpButton';
+import { CategoryProductCarousel } from '@/components/home/CategoryProductCarousel';
+import { IProduct } from '@/models/Product';
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -18,8 +19,17 @@ export default async function HomePage() {
 
   // Fetch featured products
   const featuredProducts = await Product.find({ featured: true, inStock: true })
-    .limit(4)
+    .limit(8)
     .lean();
+
+  // Fetch products by category for carousels
+  const categoryProducts: Record<string, IProduct[]> = {};
+  for (const category of Object.keys(categories)) {
+    const products = await Product.find({ category, inStock: true })
+      .limit(8)
+      .lean();
+    categoryProducts[category] = products as IProduct[];
+  }
 
   // Get product counts by category
   const productCounts = await Promise.all(
@@ -29,9 +39,10 @@ export default async function HomePage() {
     })
   );
 
-  const serializedProducts = JSON.parse(JSON.stringify(featuredProducts));
+  const serializedFeaturedProducts = JSON.parse(JSON.stringify(featuredProducts)) as IProduct[];
+  const serializedCategoryProducts = JSON.parse(JSON.stringify(categoryProducts)) as Record<string, IProduct[]>;
 
-  // Check if user is new (created within last 7 days) - only if session exists
+  // Check if user is new
   const isNewUser = session?.user?.createdAt
     ? new Date().getTime() - new Date(session.user.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000
     : false;
@@ -72,10 +83,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Video Tutorial - Show prominently for new users, always available via help button */}
+      {/* Video Tutorial */}
       {session && isNewUser && <VideoTutorial />}
-
-      {/* Floating Help Button - Always visible for quick access */}
       {session && <HelpButton />}
 
       {/* Categories */}
@@ -106,8 +115,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Featured Products */}
-      {serializedProducts.length > 0 && (
+      {/* Featured Products Carousel */}
+      {serializedFeaturedProducts.length > 0 && (
         <section className="container mx-auto px-4 py-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Featured Products</h2>
@@ -115,15 +124,29 @@ export default async function HomePage() {
               <Link href="/products?featured=true">View All</Link>
             </Button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {serializedProducts.map((product: any) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
+          <CategoryProductCarousel products={serializedFeaturedProducts} />
         </section>
       )}
 
-      {/* Video Tutorial for returning users - less prominent */}
+      {/* Category Product Carousels */}
+      {(Object.entries(serializedCategoryProducts) as [string, IProduct[]][]).map(([category, products]) => {
+        if (products.length === 0) return null;
+        return (
+          <section key={category} className="container mx-auto px-4 py-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">
+                {categories[category as keyof typeof categories]?.label}
+              </h2>
+              <Button variant="ghost" asChild>
+                <Link href={`/products?category=${category}`}>View All</Link>
+              </Button>
+            </div>
+            <CategoryProductCarousel products={products} />
+          </section>
+        );
+      })}
+
+      {/* Video Tutorial for returning users */}
       {session && !isNewUser && <VideoTutorial />}
 
       {/* Features */}
