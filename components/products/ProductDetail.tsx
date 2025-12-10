@@ -96,7 +96,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
         <div className="grid relative md:grid-cols-2 gap-8">
           {/* Product Images */}
           {/* Product Images - Updated for full image display */}
-          <div className="h-max sticky top-32">
+          <div className="h-max md:sticky  top-32">
             <div className="relative aspect-square mb-4 rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 p-8">
               {product.images && product.images.length > 0 ? (
                 <Image
