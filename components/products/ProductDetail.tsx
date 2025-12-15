@@ -92,6 +92,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
         </div>
       </div>
 
+
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         <div className="grid relative md:grid-cols-2 gap-8">
           {/* Product Images */}
