@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -17,8 +17,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Loader2, Upload, X, ImageIcon } from 'lucide-react';
-import { categories, getSubcategories } from '@/lib/categories';
 import { IProduct } from '@/models/Product';
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
+import { Info } from 'lucide-react';
 
 interface ProductFormProps {
   product?: IProduct;
@@ -40,12 +41,17 @@ interface FormDataState {
   tags: string;
 }
 
+
 export default function ProductForm({ product, isEdit = false }: ProductFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [imageUrls, setImageUrls] = useState<string[]>(product?.images || []);
   const [imagePreviews, setImagePreviews] = useState<string[]>(product?.images || []);
+  
+  // Add state for categories
+  const [categories, setCategories] = useState<any[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
   
   const [formData, setFormData] = useState<FormDataState>({
     name: product?.name || '',
@@ -59,6 +65,34 @@ export default function ProductForm({ product, isEdit = false }: ProductFormProp
     colors: product?.colors?.join(', ') || '',
     tags: product?.tags?.join(', ') || '',
   });
+
+  // Fetch categories on mount
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // Update subcategories when category changes
+  useEffect(() => {
+    const selectedCategory = categories.find(cat => cat.key === formData.category);
+    setSubcategories(selectedCategory?.subcategories || []);
+  }, [formData.category, categories]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      const data = await response.json();
+      setCategories(data.categories || []);
+      
+      // Set initial subcategories if editing
+      if (product?.category) {
+        const selectedCategory = data.categories?.find((cat: any) => cat.key === product.category);
+        setSubcategories(selectedCategory?.subcategories || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+      toast.error('Failed to load categories');
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -176,7 +210,6 @@ formData.append('purpose', 'product'); // Add this line
     }
   };
 
-  const subcategories = getSubcategories(formData.category);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -304,8 +337,8 @@ formData.append('purpose', 'product'); // Add this line
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(categories).map(([key, cat]) => (
-                    <SelectItem key={key} value={key}>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.key} value={cat.key}>
                       {cat.icon} {cat.label}
                     </SelectItem>
                   ))}
@@ -347,8 +380,26 @@ formData.append('purpose', 'product'); // Add this line
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="featured">Featured</Label>
-              <Select
+<div className="flex items-center gap-2">
+    <Label htmlFor="featured">Featured Product</Label>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+        </TooltipTrigger>
+        <TooltipContent className="max-w-xs">
+          <p className="font-semibold mb-1">What are Featured Products?</p>
+          <p className="text-sm">Featured products are highlighted on the homepage and appear at the top of search results. Use this for:</p>
+          <ul className="text-sm list-disc list-inside mt-1 space-y-1">
+            <li>Best sellers</li>
+            <li>New arrivals</li>
+            <li>Promotional items</li>
+            <li>Premium products</li>
+          </ul>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  </div>              <Select
                 value={formData.featured.toString()}
                 onValueChange={(value) =>
                   setFormData({ ...formData, featured: value === 'true' })

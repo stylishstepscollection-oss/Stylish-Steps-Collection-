@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
-  LayoutDashboard,
+  LayoutDashboard,TrendingUp,
   Package,
   ShoppingCart,
   Users,
@@ -13,7 +13,7 @@ import {
   BarChart3,
   Menu,Moon, Sun, 
 } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader,  SheetTitle } from '@/components/ui/sheet';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import  logo from '@/public/SSC.png';
@@ -23,6 +23,8 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Products', href: '/admin-products', icon: Package },
+    {name: 'Advertisements', href: '/admin-ads', icon: TrendingUp },
+    {name: 'Categories', href: '/admin-categories', icon: Package },
   { name: 'Orders', href: '/admin-orders', icon: ShoppingCart },
   { name: 'Disputes', href: '/admin-disputes', icon: ShoppingCart },
   { name: 'Users', href: '/admin-users', icon: Users },

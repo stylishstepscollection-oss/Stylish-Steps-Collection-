@@ -68,6 +68,7 @@ const ProductSchema = new Schema<IProduct>(
       default: 0,
       min: 0,
     },
+    
     tags: {
       type: [String],
       default: [],
@@ -80,6 +81,22 @@ const ProductSchema = new Schema<IProduct>(
 
 // Index for search
 ProductSchema.index({ name: 'text', description: 'text', tags: 'text' });
+// Add a pre-save hook to automatically update inStock based on stock
+ProductSchema.pre('save', function(next) {
+  this.inStock = this.stock > 0;
+  next();
+});
+
+// Add a pre-findOneAndUpdate hook for when using findByIdAndUpdate
+ProductSchema.pre('findOneAndUpdate', function(next) {
+  const update = this.getUpdate() as any;
+  if (update.$set && update.$set.stock !== undefined) {
+    update.$set.inStock = update.$set.stock > 0;
+  } else if (update.stock !== undefined) {
+    update.inStock = update.stock > 0;
+  }
+  next();
+});
 
 const Product: Model<IProduct> = mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);
 

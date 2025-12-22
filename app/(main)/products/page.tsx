@@ -1,5 +1,5 @@
+// app/products/page.tsx - Add sidebar ad
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
@@ -7,6 +7,7 @@ import ProductGrid from '@/components/products/ProductGrid';
 import CategoryFilter from '@/components/products/CategoryFilter';
 import SubcategoryFilter from '@/components/products/SubcategoryFilter';
 import SearchBar from '@/components/products/SearchBar';
+import AdBanner from '@/components/ads/AdBanner';
 import { IProduct } from '@/models/Product';
 import { Loader2 } from 'lucide-react';
 
@@ -16,14 +17,14 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState(searchParams.get('category') || 'all');
   const [subcategory, setSubcategory] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
 
   useEffect(() => {
-    // Update category from URL params
     const urlCategory = searchParams.get('category');
-    if (urlCategory) {
-      setCategory(urlCategory);
-    }
+    const urlSearch = searchParams.get('search');
+    
+    if (urlCategory) setCategory(urlCategory);
+    if (urlSearch) setSearchQuery(urlSearch);
   }, [searchParams]);
 
   useEffect(() => {
@@ -56,12 +57,27 @@ export default function ProductsPage() {
   const handleCategoryChange = (newCategory: string) => {
     setCategory(newCategory);
     setSubcategory('');
-    // Update URL without navigation
-    window.history.pushState({}, '', `/products${newCategory !== 'all' ? `?category=${newCategory}` : ''}`);
+    window.history.pushState(
+      {},
+      '',
+      `/products${newCategory !== 'all' ? `?category=${newCategory}` : ''}`
+    );
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query) {
+      window.history.pushState({}, '', `/products?search=${encodeURIComponent(query)}`);
+    }
   };
 
   return (
     <div className="container mx-auto px-4 py-6">
+      {/* Top Banner Ad */}
+      <div className="mb-6">
+        <AdBanner placement="products" adType="banner" />
+      </div>
+
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Our Products</h1>
         <p className="text-muted-foreground">
@@ -70,7 +86,7 @@ export default function ProductsPage() {
       </div>
 
       <div className="mb-6">
-        <SearchBar onSearch={setSearchQuery} />
+        <SearchBar onSearch={handleSearch} />
       </div>
 
       <div className="mb-6">
@@ -88,18 +104,29 @@ export default function ProductsPage() {
         />
       </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-accent-gold" />
+      <div className="flex gap-6">
+        {/* Main Content */}
+        <div className="flex-1">
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-accent-gold" />
+            </div>
+          ) : (
+            <>
+              <div className="mb-4 text-sm text-muted-foreground">
+                {products.length} product{products.length !== 1 ? 's' : ''} found
+              </div>
+              <ProductGrid products={products} />
+            </>
+          )}
         </div>
-      ) : (
-        <>
-          <div className="mb-4 text-sm text-muted-foreground">
-            {products.length} product{products.length !== 1 ? 's' : ''} found
-          </div>
-          <ProductGrid products={products} />
-        </>
-      )}
+
+        {/* Sidebar with Ad */}
+        <div className="hidden lg:block w-80 space-y-6">
+          <AdBanner placement="products" adType="sidebar" />
+          <AdBanner placement="products" adType="sidebar" />
+        </div>
+      </div>
     </div>
   );
 }

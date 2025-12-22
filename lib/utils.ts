@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { categories } from "./categories"
+import { defaultCategories } from "./categories"  // Change this import
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -22,9 +22,9 @@ export function formatDate(date: Date | string): string {
 }
 
 export function getCategoryLabel(category: string): string {
-  return categories[category as keyof typeof categories]?.label || category;
+  return defaultCategories[category as keyof typeof defaultCategories]?.label || category;
 }
 
 export function getCategoryIcon(category: string): string {
-  return categories[category as keyof typeof categories]?.icon || '📦';
+  return defaultCategories[category as keyof typeof defaultCategories]?.icon || '📦';
 }

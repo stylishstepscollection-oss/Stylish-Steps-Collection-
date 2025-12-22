@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ProductsTable from '@/components/admin/productTable';
 import { IProduct } from '@/models/Product';
 import { Plus, Search, Loader2 } from 'lucide-react';
-import { categories } from '@/lib/categories';
+import { defaultCategories as categories} from '@/lib/categories';
 
 export default function AdminProductsPage() {
   const router = useRouter();

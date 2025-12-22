@@ -1,7 +1,8 @@
+// components/products/SearchBar.tsx
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Search, X, TrendingUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
@@ -11,12 +12,10 @@ interface SearchBarProps {
 
 export default function SearchBar({ onSearch }: SearchBarProps) {
   const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Popular/trending searches
   const popularSearches = [
     'Suits',
     'Batakari',
@@ -25,20 +24,6 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
     'Custom',
   ];
 
-  // Debounce search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 300); // Reduced from 500ms for faster response
-
-    return () => clearTimeout(timer);
-  }, [query]);
-
-  useEffect(() => {
-    onSearch(debouncedQuery);
-  }, [debouncedQuery, onSearch]);
-
-  // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -50,10 +35,23 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
         setShowSuggestions(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleSearch = (searchQuery?: string) => {
+    const searchTerm = searchQuery || query;
+    if (searchTerm.trim()) {
+      onSearch(searchTerm.trim());
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   const handleClear = () => {
     setQuery('');
@@ -63,9 +61,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
 
   const handleSuggestionClick = (suggestion: string) => {
     setQuery(suggestion);
-    setDebouncedQuery(suggestion);
-    onSearch(suggestion);
-    setShowSuggestions(false);
+    handleSearch(suggestion);
   };
 
   return (
@@ -76,9 +72,10 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
           <Input
             ref={inputRef}
             type="text"
-            placeholder="Search products, categories, brands..."
+            placeholder="Search products, categories..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
             onFocus={() => setShowSuggestions(true)}
             className="pl-10 pr-10 h-11"
           />
@@ -86,15 +83,20 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             <button
               onClick={handleClear}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Clear search"
             >
               <X className="h-4 w-4" />
             </button>
           )}
         </div>
+        <Button 
+          onClick={() => handleSearch()}
+          className="bg-zinc-500 hover:bg-zinc-500/90"
+          disabled={!query.trim()}
+        >
+          Search
+        </Button>
       </div>
 
-      {/* Search Suggestions */}
       {showSuggestions && !query && (
         <Card
           ref={suggestionsRef}
@@ -118,13 +120,6 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             </div>
           </div>
         </Card>
-      )}
-
-      {/* Search hint */}
-      {query && debouncedQuery !== query && (
-        <p className="absolute top-full mt-1 text-xs text-muted-foreground">
-          Searching...
-        </p>
       )}
     </div>
   );

@@ -1,4 +1,5 @@
-export const categories = {
+// lib/categories.ts
+export const defaultCategories = {
   men: {
     label: "Men's Collection",
     icon: '👔',
@@ -46,14 +47,47 @@ export const categories = {
   },
 };
 
+export async function getCategories() {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/categories`, {
+      cache: 'no-store',
+    });
+    
+    if (!response.ok) {
+      console.error('Failed to fetch categories, using defaults');
+      return defaultCategories;
+    }
+    
+    const data = await response.json();
+    
+    if (data.categories && data.categories.length > 0) {
+      const formatted: Record<string, any> = {};
+      data.categories.forEach((cat: any) => {
+        formatted[cat.key] = {
+          label: cat.label,
+          icon: cat.icon,
+          subcategories: cat.subcategories,
+        };
+      });
+      return formatted;
+    }
+    
+    return defaultCategories;
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return defaultCategories;
+  }
+}
+
+
 export function getCategoryLabel(category: string): string {
-  return categories[category as keyof typeof categories]?.label || category;
+  return defaultCategories[category as keyof typeof defaultCategories]?.label || category;
 }
 
 export function getCategoryIcon(category: string): string {
-  return categories[category as keyof typeof categories]?.icon || '📦';
+  return defaultCategories[category as keyof typeof defaultCategories]?.icon || '📦';
 }
 
-export function getSubcategories(category: string) {
-  return categories[category as keyof typeof categories]?.subcategories || [];
+export function getSubdefaultCategories(category: string) {
+  return defaultCategories[category as keyof typeof defaultCategories]?.subcategories || [];
 }
