@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { getSubcategories } from '@/lib/categories';
+import { getSubdefaultCategories as getSubcategories } from '@/lib/categories';
 import { cn } from '@/lib/utils';
 
 interface SubcategoryFilterProps {

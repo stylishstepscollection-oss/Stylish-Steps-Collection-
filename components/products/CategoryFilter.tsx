@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { categories, getCategoryIcon } from '@/lib/categories';
+import { defaultCategories as categories } from '@/lib/categories';
 import { cn } from '@/lib/utils';
 
 interface CategoryFilterProps {
