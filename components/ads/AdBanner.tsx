@@ -112,7 +112,7 @@ export default function AdBanner({ placement, adType, className = '' }: AdBanner
                 src={currentAd.image}
                 alt={currentAd.title}
                 fill
-                className="object-cover"
+                className="object-contain"
               />
             </div>
             {currentAd.isSponsored && (
